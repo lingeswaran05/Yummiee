@@ -1,0 +1,6 @@
+target/
+yummiee-java-db*
+*.log
+.idea/
+.vscode/
+*.iml
