@@ -1,0 +1,465 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Smart Shopping List | CookSync</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#ae3115",
+                        "tertiary-fixed-dim": "#c7c6c5",
+                        "outline-variant": "#e1bfb8",
+                        "surface-bright": "#fcf9f8",
+                        "primary-fixed-dim": "#ffb4a3",
+                        "on-surface-variant": "#59413c",
+                        "on-tertiary-fixed-variant": "#464746",
+                        "on-secondary-fixed": "#002204",
+                        "primary-fixed": "#ffdad2",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#ff6b4a",
+                        "inverse-surface": "#303030",
+                        "secondary-fixed-dim": "#78dc77",
+                        "on-error": "#ffffff",
+                        "outline": "#8d716a",
+                        "inverse-primary": "#ffb4a3",
+                        "surface-variant": "#e4e2e1",
+                        "surface-container-highest": "#e4e2e1",
+                        "on-background": "#1b1c1c",
+                        "surface-dim": "#dcd9d9",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#ae3115",
+                        "on-secondary-fixed-variant": "#005313",
+                        "on-surface": "#1b1c1c",
+                        "on-secondary-container": "#00731e",
+                        "on-primary-fixed-variant": "#8c1900",
+                        "surface-container-high": "#eae7e7",
+                        "tertiary": "#5e5e5d",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#91f78e",
+                        "surface": "#fcf9f8",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#661000",
+                        "surface-container-low": "#f6f3f2",
+                        "tertiary-fixed": "#e3e2e0",
+                        "surface-container": "#f0eded",
+                        "on-tertiary": "#ffffff",
+                        "background": "#fcf9f8",
+                        "inverse-on-surface": "#f3f0f0",
+                        "secondary-fixed": "#94f990",
+                        "tertiary-container": "#9a9a98",
+                        "secondary": "#006e1c",
+                        "on-tertiary-container": "#313231",
+                        "on-primary-fixed": "#3d0600",
+                        "on-tertiary-fixed": "#1a1c1b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "margin-desktop": "40px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-xl": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .custom-checkbox:checked {
+            background-color: theme('colors.secondary');
+            border-color: theme('colors.secondary');
+        }
+        .item-checked {
+            text-decoration: line-through;
+            color: theme('colors.tertiary');
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- Top Navbar -->
+<header class="w-full bg-surface shadow-sm sticky top-0 z-50">
+<div class="max-w-container-max mx-auto px-margin-mobile lg:px-margin-desktop h-20 flex items-center justify-between border-b border-surface-variant lg:border-none">
+<div class="flex items-center gap-2 lg:gap-12">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl">restaurant_menu</span>
+<span class="font-headline-sm text-headline-sm font-bold text-primary">CookSync</span>
+</div>
+<!-- Desktop Navigation Links -->
+<nav class="hidden lg:flex items-center gap-8 h-full pt-1">
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors py-7" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors py-7" href="#">Wishlist</a>
+<a class="text-primary font-bold font-label-md text-label-md border-b-2 border-primary py-7 -mb-0.5" href="#">Shopping List</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors py-7" href="#">Add Recipe</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<img alt="User avatar" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A clean, minimalist user avatar showing a smiling person in a bright, modern kitchen setting. High quality photography, well lit." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiaaATBlQ5n7okqajPXofm0h7VzhkwYrQQrf6RlnEPXuI45d5TMf0-rXLU6rdJctdwdODbyapGZ3uL50BD2LXM2GwGHQ4TkNVetVrntWD13w4f7jcUdIZEpLQseoD7fyFHo0OGlgbwQJzKdSAtg09dyrFjsvYptdv2g4IvDwjAtnvdd6lo8CT-Cxxg-rttSdTxwr3Z1SDum6hYsMOoFgws5kubsmQrzx5my_2Gah13EkJYWGORG7XD">
+</div>
+</div>
+</header>
+<!-- Mobile Nav Tabs (Under TopNav) -->
+<div class="lg:hidden flex overflow-x-auto border-b border-surface-variant bg-surface px-margin-mobile no-scrollbar sticky top-20 z-40">
+<a class="whitespace-nowrap px-4 py-3 text-on-surface-variant font-label-md text-label-md flex-shrink-0" href="#">Dashboard</a>
+<a class="whitespace-nowrap px-4 py-3 text-on-surface-variant font-label-md text-label-md flex-shrink-0" href="#">Wishlist</a>
+<a class="whitespace-nowrap px-4 py-3 text-primary border-b-2 border-primary font-bold font-label-md text-label-md flex-shrink-0" href="#">Shopping List</a>
+<a class="whitespace-nowrap px-4 py-3 text-on-surface-variant font-label-md text-label-md flex-shrink-0" href="#">Add Recipe</a>
+</div>
+<!-- Main Content -->
+<main class="flex-1 p-margin-mobile lg:p-margin-desktop max-w-container-max mx-auto w-full pb-32">
+<header class="mb-6 mt-4 lg:mt-0">
+<h1 class="font-headline-lg-mobile lg:font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-on-background mb-2">Shopping List</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Everything you need for your next cooking session.</p>
+</header>
+<!-- Search Bar -->
+<div class="mb-10 relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-lowest border border-surface-variant rounded-[12px] py-4 pl-12 pr-4 font-body-md text-on-background focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.02)]" placeholder="Search ingredients..." type="text">
+</div>
+<!-- Summary Section Bento -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="col-span-1 md:col-span-2 bg-surface-container-lowest rounded-[20px] p-6 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant flex flex-col justify-between relative overflow-hidden">
+<!-- Decorative background blob -->
+<div class="absolute -right-20 -top-20 w-64 h-64 bg-primary-fixed opacity-50 rounded-full blur-3xl pointer-events-none"></div>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-background mb-4">List Summary</h2>
+<div class="flex gap-4 mb-6">
+<div class="bg-surface-container-low px-4 py-2 rounded-xl flex flex-col">
+<span class="font-headline-md text-headline-md text-primary">12</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Items</span>
+</div>
+<div class="bg-surface-container-low px-4 py-2 rounded-xl flex flex-col">
+<span class="font-headline-md text-headline-md text-on-background">4</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Recipes</span>
+</div>
+<div class="bg-surface-container-low px-4 py-2 rounded-xl flex flex-col">
+<span class="font-headline-md text-headline-md text-on-background">3</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Categories</span>
+</div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="font-label-md text-label-md text-on-surface-variant">Progress</span>
+<span class="font-label-md text-label-md text-secondary">4 of 12 items purchased</span>
+</div>
+<div class="w-full bg-surface-variant h-3 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full w-[33%] transition-all duration-500"></div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-surface-variant">
+<button class="w-full md:w-auto bg-primary-container text-on-primary font-label-md text-label-md px-6 py-3 rounded-[12px] hover:bg-on-primary-container transition-colors shadow-sm flex items-center justify-center gap-2" onclick="document.getElementById('createGroceryListModal').classList.remove('hidden')">
+<span class="material-symbols-outlined">shopping_bag</span>
+        Create Grocery List
+    </button>
+</div></div>
+<div class="col-span-1 flex flex-col gap-4">
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-4 rounded-[12px] hover:bg-on-primary-container transition-colors shadow-sm flex items-center justify-center gap-2" onclick="document.getElementById('addItemModal').classList.remove('hidden')">
+<span class="material-symbols-outlined">add</span>
+                    Add Item
+                </button>
+<div class="grid grid-cols-2 gap-4 flex-1">
+<button class="bg-surface-container-lowest border border-outline-variant text-on-background font-label-md text-label-md rounded-[12px] hover:bg-surface-container-low transition-colors flex flex-col items-center justify-center p-4 gap-2">
+<span class="material-symbols-outlined text-tertiary">clear_all</span>
+<span class="text-center">Clear Purchased</span>
+</button>
+<button class="bg-error-container text-on-error-container border border-error-container font-label-md text-label-md rounded-[12px] hover:bg-[#ffc1bb] transition-colors flex flex-col items-center justify-center p-4 gap-2" onclick="document.getElementById('clearAllModal').classList.remove('hidden')">
+<span class="material-symbols-outlined">delete</span>
+<span class="text-center">Clear All</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Empty State (Hidden by default) -->
+<div class="hidden flex-col items-center justify-center py-16 text-center border-2 border-dashed border-surface-variant rounded-[20px] bg-surface-container-low mb-8">
+<div class="w-16 h-16 bg-surface-variant rounded-full flex items-center justify-center text-on-surface-variant mb-4">
+<span class="material-symbols-outlined text-3xl">shopping_cart</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-2">Your shopping list is empty</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-sm mb-6">Add ingredients from your recipes to start building your shopping list.</p>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-[12px] hover:bg-on-primary-container transition-colors shadow-sm">
+        Browse Recipes
+    </button>
+</div>
+<!-- List Section -->
+<section class="bg-surface-container-lowest rounded-[20px] shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant overflow-hidden mb-8">
+<!-- Category: Vegetables -->
+<div class="border-b border-surface-variant last:border-b-0">
+<div class="bg-surface-container-low px-6 py-3 flex items-center justify-between">
+<h3 class="font-label-md text-label-md text-on-surface-variant tracking-widest uppercase">Vegetables</h3>
+</div>
+<div class="divide-y divide-surface-variant">
+<!-- Item -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-surface-bright transition-colors group">
+<div class="flex items-center gap-4">
+<input class="custom-checkbox w-6 h-6 rounded-md border-outline-variant text-secondary focus:ring-secondary focus:ring-offset-0 bg-surface-container-lowest cursor-pointer" type="checkbox">
+<span class="font-body-md text-body-md text-on-background font-medium">Tomato</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="bg-surface-container px-3 py-1 rounded-full font-label-md text-label-md text-on-surface-variant">
+                                5
+                            </div>
+<button class="text-tertiary-fixed-dim hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Item -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-surface-bright transition-colors group">
+<div class="flex items-center gap-4">
+<input class="custom-checkbox w-6 h-6 rounded-md border-outline-variant text-secondary focus:ring-secondary focus:ring-offset-0 bg-surface-container-lowest cursor-pointer" type="checkbox">
+<span class="font-body-md text-body-md text-on-background font-medium">Onion</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="bg-surface-container px-3 py-1 rounded-full font-label-md text-label-md text-on-surface-variant">
+                                3
+                            </div>
+<button class="text-tertiary-fixed-dim hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Item -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-surface-bright transition-colors group">
+<div class="flex items-center gap-4">
+<input checked="" class="custom-checkbox w-6 h-6 rounded-md border-outline-variant text-secondary focus:ring-secondary focus:ring-offset-0 bg-surface-container-lowest cursor-pointer" type="checkbox">
+<span class="font-body-md text-body-md item-checked font-medium">Garlic</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="bg-surface-container px-3 py-1 rounded-full font-label-md text-label-md text-tertiary">
+                                1 bulb
+                            </div>
+<button class="text-tertiary-fixed-dim hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Category: Grains -->
+<div class="border-b border-surface-variant last:border-b-0">
+<div class="bg-surface-container-low px-6 py-3 flex items-center justify-between">
+<h3 class="font-label-md text-label-md text-on-surface-variant tracking-widest uppercase">Grains</h3>
+</div>
+<div class="divide-y divide-surface-variant">
+<!-- Item -->
+<div class="p-4 px-6 flex flex-col md:flex-row md:items-center justify-between hover:bg-surface-bright transition-colors group gap-2">
+<div class="flex items-center gap-4">
+<input class="custom-checkbox w-6 h-6 rounded-md border-outline-variant text-secondary focus:ring-secondary focus:ring-offset-0 bg-surface-container-lowest cursor-pointer" type="checkbox">
+<span class="font-body-md text-body-md text-on-background font-medium">Rice</span>
+<span class="hidden md:inline-block bg-primary-fixed text-on-primary-fixed-variant px-2 py-0.5 rounded text-[12px] font-semibold leading-tight">Combined from 2 recipes</span>
+</div>
+<div class="flex items-center justify-between md:justify-end w-full md:w-auto gap-6 pl-10 md:pl-0">
+<span class="md:hidden bg-primary-fixed text-on-primary-fixed-variant px-2 py-0.5 rounded text-[12px] font-semibold leading-tight">Combined</span>
+<div class="flex items-center gap-6">
+<div class="bg-surface-container px-3 py-1 rounded-full font-label-md text-label-md text-on-surface-variant">
+                                    2 kg
+                                </div>
+<button class="text-tertiary-fixed-dim hover:text-error transition-colors md:opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-surface-bright transition-colors group">
+<div class="flex items-center gap-4">
+<input class="custom-checkbox w-6 h-6 rounded-md border-outline-variant text-secondary focus:ring-secondary focus:ring-offset-0 bg-surface-container-lowest cursor-pointer" type="checkbox">
+<span class="font-body-md text-body-md text-on-background font-medium">Pasta</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="bg-surface-container px-3 py-1 rounded-full font-label-md text-label-md text-on-surface-variant">
+                                500 g
+                            </div>
+<button class="text-tertiary-fixed-dim hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Category: Dairy -->
+<div class="border-b border-surface-variant last:border-b-0">
+<div class="bg-surface-container-low px-6 py-3 flex items-center justify-between">
+<h3 class="font-label-md text-label-md text-on-surface-variant tracking-widest uppercase">Dairy</h3>
+</div>
+<div class="divide-y divide-surface-variant">
+<!-- Item -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-surface-bright transition-colors group">
+<div class="flex items-center gap-4">
+<input checked="" class="custom-checkbox w-6 h-6 rounded-md border-outline-variant text-secondary focus:ring-secondary focus:ring-offset-0 bg-surface-container-lowest cursor-pointer" type="checkbox">
+<span class="font-body-md text-body-md item-checked font-medium">Milk</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="bg-surface-container px-3 py-1 rounded-full font-label-md text-label-md text-tertiary">
+                                1 L
+                            </div>
+<button class="text-tertiary-fixed-dim hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<!-- Item -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-surface-bright transition-colors group">
+<div class="flex items-center gap-4">
+<input checked="" class="custom-checkbox w-6 h-6 rounded-md border-outline-variant text-secondary focus:ring-secondary focus:ring-offset-0 bg-surface-container-lowest cursor-pointer" type="checkbox">
+<span class="font-body-md text-body-md item-checked font-medium">Cheese</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="bg-surface-container px-3 py-1 rounded-full font-label-md text-label-md text-tertiary">
+                                200 g
+                            </div>
+<button class="text-tertiary-fixed-dim hover:text-error transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Summary Bottom Bar -->
+<div class="fixed bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-surface-variant shadow-[0_-4px_24px_rgba(0,0,0,0.06)] p-4 md:px-margin-desktop z-30">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-background">8 items remaining</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Keep going, almost done!</div>
+</div>
+</div>
+<button class="w-full md:w-auto bg-secondary text-on-secondary font-label-md text-label-md px-8 py-3 rounded-[12px] hover:bg-on-secondary-container transition-colors shadow-sm whitespace-nowrap">
+                Mark All Purchased
+            </button>
+</div>
+</div>
+<!-- Modals & Overlays (Hidden by default, shown for mockup purposes using display: none or flex based on js) -->
+<!-- Add Item Modal Mockup (Hidden) -->
+<div class="hidden fixed inset-0 z-[100] bg-on-background/50 flex items-center justify-center p-4 backdrop-blur-sm" id="addItemModal">
+<div class="bg-surface-container-lowest rounded-[24px] shadow-[0_12px_24px_rgba(0,0,0,0.08)] w-full max-w-md overflow-hidden flex flex-col">
+<div class="px-6 py-4 border-b border-surface-variant flex justify-between items-center">
+<h3 class="font-headline-sm text-headline-sm text-on-background">Add New Item</h3>
+<button class="text-on-surface-variant hover:text-on-background" onclick="document.getElementById('addItemModal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-6 flex flex-col gap-4">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1">Ingredient Name</label>
+<input class="w-full rounded-[12px] border-[#E5E5E5] px-4 py-3 font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all" placeholder="e.g. Olive Oil" type="text">
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1">Quantity</label>
+<input class="w-full rounded-[12px] border-[#E5E5E5] px-4 py-3 font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all" placeholder="1" type="number">
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1">Unit</label>
+<select class="w-full rounded-[12px] border-[#E5E5E5] px-4 py-3 font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all bg-white">
+<option>pcs</option>
+<option>kg</option>
+<option>g</option>
+<option>L</option>
+<option>ml</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1">Category</label>
+<select class="w-full rounded-[12px] border-[#E5E5E5] px-4 py-3 font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all bg-white">
+<option>Vegetables</option>
+<option>Grains</option>
+<option>Dairy</option>
+<option>Meat</option>
+<option>Pantry</option>
+</select>
+</div>
+</div>
+<div class="px-6 py-4 bg-surface-container-low flex justify-end gap-3 rounded-b-[24px]">
+<button class="px-6 py-2 rounded-[12px] font-label-md text-label-md text-on-surface-variant bg-surface-container-lowest border border-outline-variant hover:bg-surface-variant transition-colors" onclick="document.getElementById('addItemModal').classList.add('hidden')">Cancel</button>
+<button class="px-6 py-2 rounded-[12px] font-label-md text-label-md text-on-primary bg-primary hover:bg-on-primary-container transition-colors shadow-sm" onclick="document.getElementById('addItemModal').classList.add('hidden')">Add Item</button>
+</div>
+</div>
+</div>
+<!-- Clear All Confirmation Mockup (Visible for requirement) -->
+<div class="hidden fixed inset-0 z-[100] bg-on-background/50 flex items-center justify-center p-4 backdrop-blur-sm" id="clearAllModal">
+<div class="bg-surface-container-lowest rounded-[24px] shadow-[0_12px_24px_rgba(0,0,0,0.08)] w-full max-w-sm overflow-hidden text-center p-8 flex flex-col items-center">
+<div class="w-16 h-16 bg-error-container rounded-full flex items-center justify-center text-on-error-container mb-6">
+<span class="material-symbols-outlined text-3xl">delete_forever</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-2">Clear shopping list?</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-8">This will remove all items from your shopping list. This action cannot be undone.</p>
+<div class="flex flex-col w-full gap-3">
+<button class="w-full px-6 py-3 rounded-[12px] font-label-md text-label-md text-on-error bg-error hover:bg-on-error-container transition-colors shadow-sm" onclick="document.getElementById('clearAllModal').classList.add('hidden')">Clear All</button>
+<button class="w-full px-6 py-3 rounded-[12px] font-label-md text-label-md text-on-surface-variant bg-surface-container-lowest border border-outline-variant hover:bg-surface-variant transition-colors" onclick="document.getElementById('clearAllModal').classList.add('hidden')">Cancel</button>
+</div>
+</div>
+</div>
+<script>
+        // Simple script to toggle mockups for demonstration if needed, though they start hidden
+        // To show Add Item: document.getElementById('addItemModal').classList.remove('hidden')
+        // To show Clear All: document.getElementById('clearAllModal').classList.remove('hidden')
+    </script>
+<div class="hidden fixed inset-0 z-[100] bg-on-background/50 flex items-center justify-center p-4 backdrop-blur-sm" id="createGroceryListModal">
+<div class="bg-surface-container-lowest rounded-[24px] shadow-[0_12px_24px_rgba(0,0,0,0.08)] w-full max-w-md overflow-hidden flex flex-col">
+<div class="px-6 py-4 border-b border-surface-variant flex justify-between items-center">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-background">Create your grocery list</h3>
+<p class="text-body-sm text-on-surface-variant">Organize your ingredients into a final shopping checklist.</p>
+</div>
+<button class="text-on-surface-variant hover:text-on-background" onclick="document.getElementById('createGroceryListModal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-6 flex flex-col gap-4">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1">List Name</label>
+<input class="w-full rounded-[12px] border-[#E5E5E5] px-4 py-3 font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all" type="text" value="Weekend Grocery List">
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-1">Notes</label>
+<textarea class="w-full rounded-[12px] border-[#E5E5E5] px-4 py-3 font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none transition-all min-h-[100px]" placeholder="Add a note for your grocery trip..."></textarea>
+</div>
+</div>
+<div class="px-6 py-4 bg-surface-container-low flex justify-end gap-3 rounded-b-[24px]">
+<button class="px-6 py-2 rounded-[12px] font-label-md text-label-md text-on-surface-variant bg-surface-container-lowest border border-outline-variant hover:bg-surface-variant transition-colors" onclick="document.getElementById('createGroceryListModal').classList.add('hidden')">Cancel</button>
+<button class="px-6 py-2 rounded-[12px] font-label-md text-label-md text-on-primary bg-primary hover:bg-on-primary-container transition-colors shadow-sm" onclick="document.getElementById('createGroceryListModal').classList.add('hidden')">Create List</button>
+</div>
+</div>
+</div></body></html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Wishlist - CookSync</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#ae3115",
+                        "tertiary-fixed-dim": "#c7c6c5",
+                        "outline-variant": "#e1bfb8",
+                        "surface-bright": "#fcf9f8",
+                        "primary-fixed-dim": "#ffb4a3",
+                        "on-surface-variant": "#59413c",
+                        "on-tertiary-fixed-variant": "#464746",
+                        "on-secondary-fixed": "#002204",
+                        "primary-fixed": "#ffdad2",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#ff6b4a",
+                        "inverse-surface": "#303030",
+                        "secondary-fixed-dim": "#78dc77",
+                        "on-error": "#ffffff",
+                        "outline": "#8d716a",
+                        "inverse-primary": "#ffb4a3",
+                        "surface-variant": "#e4e2e1",
+                        "surface-container-highest": "#e4e2e1",
+                        "on-background": "#1b1c1c",
+                        "surface-dim": "#dcd9d9",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#ae3115",
+                        "on-secondary-fixed-variant": "#005313",
+                        "on-surface": "#1b1c1c",
+                        "on-secondary-container": "#00731e",
+                        "on-primary-fixed-variant": "#8c1900",
+                        "surface-container-high": "#eae7e7",
+                        "tertiary": "#5e5e5d",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#91f78e",
+                        "surface": "#fcf9f8",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#661000",
+                        "surface-container-low": "#f6f3f2",
+                        "tertiary-fixed": "#e3e2e0",
+                        "surface-container": "#f0eded",
+                        "on-tertiary": "#ffffff",
+                        "background": "#fcf9f8",
+                        "inverse-on-surface": "#f3f0f0",
+                        "secondary-fixed": "#94f990",
+                        "tertiary-container": "#9a9a98",
+                        "secondary": "#006e1c",
+                        "on-tertiary-container": "#313231",
+                        "on-primary-fixed": "#3d0600",
+                        "on-tertiary-fixed": "#1a1c1b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "2xl": "1.25rem"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "margin-desktop": "40px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-xl": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .shadow-soft {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+        .shadow-modal {
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased font-body-md h-screen flex overflow-hidden">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin-mobile lg:px-margin-desktop h-20 bg-surface shadow-sm fixed top-0 z-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+<span class="text-headline-sm font-headline-sm font-bold text-primary">CookSync</span>
+</div>
+<nav class="hidden lg:flex items-center gap-8 h-full">
+<a class="h-full flex items-center text-on-surface-variant font-label-md hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="h-full flex items-center text-primary font-label-md border-b-2 border-primary" href="#">Wishlist</a>
+<a class="h-full flex items-center text-on-surface-variant font-label-md hover:text-primary transition-colors" href="#">Shopping List</a>
+<a class="h-full flex items-center text-on-surface-variant font-label-md hover:text-primary transition-colors" href="#">Add Recipe</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors lg:hidden">
+<span class="material-symbols-outlined">search</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="Close up of a friendly person's face, well-lit, neutral background, modern lifestyle photography, soft lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7Xpz_DRrsIRrN-6XYdlsNYxu5krTjbr42lNqsVj9H0PhlrR92lpxXA9jE7d42Be1F6h5zZ6CCnixZAdUnUKg6pg6wU7XHl-Iakpy_rXTAuxLUibqW59JrK3jBGIE1Z_USx87d5ThKWjfCvTbJAMMkFRFb9uroS4htMBU3MTpXq5WlD9jwq6z66_8nbehH46rI6Df10TKrnzfGtvg586Ca7SEr2Byw35EJJlAoHsQH6U5ZF8fKw8-q"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 pt-20 overflow-y-auto w-full">
+<div class="max-w-container-max mx-auto px-margin-mobile lg:px-margin-desktop py-8 lg:py-12">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+<div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-2 hidden md:block">My Wishlist</h1>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2 md:hidden">My Wishlist</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Your favorite recipes, all in one place.</p>
+</div>
+<div class="flex items-center bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant">
+<span class="material-symbols-outlined text-primary mr-2" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-label-md text-label-md text-on-surface-variant">4 Favorite Recipes</span>
+</div>
+</div>
+<!-- Controls Section -->
+<div class="flex flex-col md:flex-row gap-4 mb-10">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-tertiary">search</span>
+<input class="w-full pl-12 pr-4 py-3 bg-surface border border-surface-dim rounded-xl font-body-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="Search your wishlist..." type="text"/>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
+<button class="whitespace-nowrap flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-xl font-label-md text-label-md shadow-soft">
+                        All
+                    </button>
+<button class="whitespace-nowrap flex items-center gap-2 px-6 py-3 bg-surface border border-surface-dim text-on-surface rounded-xl font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                        Breakfast
+                    </button>
+<button class="whitespace-nowrap flex items-center gap-2 px-6 py-3 bg-surface border border-surface-dim text-on-surface rounded-xl font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                        Dinner
+                    </button>
+<button class="whitespace-nowrap flex items-center gap-2 px-6 py-3 bg-surface border border-surface-dim text-on-surface rounded-xl font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                        Desserts
+                    </button>
+<button class="flex items-center justify-center w-12 h-12 bg-surface border border-surface-dim text-on-surface rounded-xl hover:bg-surface-container-low transition-colors shrink-0">
+<span class="material-symbols-outlined">tune</span>
+</button>
+</div>
+</div>
+<!-- Recipe Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- Recipe Card 1 -->
+<div class="bg-surface rounded-2xl overflow-hidden shadow-soft group hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-48 w-full">
+<img class="w-full h-full object-cover" data-alt="A beautifully plated avocado toast with a poached egg on top, rustic wooden table setting, morning sunlight, shallow depth of field, bright and fresh modern food photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIl9dLbuhNW7MfxosOYuDFJQMV1IKiFSBgWTciYCEWhSd_oF2ka0TU6snzflE91ZgHQtCb4C7bVkaUGxV2HwPKliYzweaRzuYe746oohVWsv1_JjsuknW6ZF1QFBj__D51kh6H-wf9X3hC3_uFa5mt9edFKYKdvo7HCMaHlaI5l424t4yCKk-cJyth7KLqvjnkA_cMe192v7VWHFD2tZ4suDMOJBiMxp-pFnpE3W2vS13stxmPXiiT"/>
+<button class="absolute top-4 right-4 w-10 h-10 bg-surface/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary shadow-sm hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<span class="bg-surface/90 backdrop-blur-sm px-3 py-1 rounded-full font-label-md text-[12px] text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> 15 min
+                            </span>
+<span class="bg-secondary-container/90 backdrop-blur-sm px-3 py-1 rounded-full font-label-md text-[12px] text-on-secondary-container">
+                                Healthy
+                            </span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2 line-clamp-1">Rustic Avocado Toast</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-4">Sourdough bread topped with mashed avocado, poached egg, and chili flakes.</p>
+<div class="flex items-center justify-between border-t border-surface-dim pt-4 mt-auto">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-surface-variant">2</div>
+<div class="w-6 h-6 rounded-full bg-primary-container border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-primary-container">+</div>
+</div>
+<a class="font-label-md text-label-md text-primary cursor-pointer hover:underline" href="#">View Recipe</a>
+</div>
+</div>
+</div>
+<!-- Recipe Card 2 -->
+<div class="bg-surface rounded-2xl overflow-hidden shadow-soft group hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-48 w-full">
+<img class="w-full h-full object-cover" data-alt="A steaming bowl of creamy tomato basil soup with a swirl of cream and fresh basil leaves on top, served with crusty bread, cozy autumn lighting, rich reds and warm tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGoEUF9zp7ZK4u_LXQoK-ySh7alpWrS72ta83dO_CZtTJw8A0Fxzrfah8G1Q8td2Khut3i2ZW6HxB7GApEIeogDb4ixpA5M7YyuVbE1_wWnY-f16Ql7YCwIZOysh1dZ4Qpo09koEInadaLIHN5KPwgZSPhuCU65ToyzQP-iJE667B3U6t4VFzkOq-O7PrMd3cNMmARDHThqHbwX4iKKRklEBmRaT_-rbeQZJdM5H6wt1XK468wYfv9"/>
+<button class="absolute top-4 right-4 w-10 h-10 bg-surface/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary shadow-sm hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<span class="bg-surface/90 backdrop-blur-sm px-3 py-1 rounded-full font-label-md text-[12px] text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> 45 min
+                            </span>
+<span class="bg-primary-container/90 backdrop-blur-sm px-3 py-1 rounded-full font-label-md text-[12px] text-on-primary-container">
+                                Comfort
+                            </span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2 line-clamp-1">Creamy Tomato Soup</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-4">Rich, roasted tomatoes blended with fresh basil and a touch of cream.</p>
+<div class="flex items-center justify-between border-t border-surface-dim pt-4 mt-auto">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-surface-variant">4</div>
+<div class="w-6 h-6 rounded-full bg-primary-container border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-primary-container">+</div>
+</div>
+<a class="font-label-md text-label-md text-primary cursor-pointer hover:underline" href="#">View Recipe</a>
+</div>
+</div>
+</div>
+<!-- Recipe Card 3 -->
+<div class="bg-surface rounded-2xl overflow-hidden shadow-soft group hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-48 w-full">
+<img class="w-full h-full object-cover" data-alt="A colorful grain bowl featuring quinoa, roasted sweet potatoes, kale, chickpeas, and a tahini drizzle. Bright, overhead flatlay shot, modern health food aesthetic, crisp lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDHD6znsypMurk9MWSwzcw0zWF5SXasO2IhFRhRQWQ-vLOT5erA_5v5aKapyOYXpdWiFui-_GGm4C10PFlTg9GviWzMBimMpJqBiOAdMkNBvPoRjNxXGNN25ZiInmWTF_dwKcI1oaY25Fmnc_ge5_Mc72aRiyPHtIftfEiGYo66rc9jO8qMuNakekDusKpdOeBlJX4XJoavnNCV7lNIoSfiMzoLTJGfmjIP3CelZLMW1er99612PTn"/>
+<button class="absolute top-4 right-4 w-10 h-10 bg-surface/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary shadow-sm hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<span class="bg-surface/90 backdrop-blur-sm px-3 py-1 rounded-full font-label-md text-[12px] text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> 30 min
+                            </span>
+<span class="bg-secondary-container/90 backdrop-blur-sm px-3 py-1 rounded-full font-label-md text-[12px] text-on-secondary-container">
+                                Vegan
+                            </span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2 line-clamp-1">Nourish Buddha Bowl</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-4">Quinoa, roasted veggies, and chickpeas topped with a zesty lemon tahini dressing.</p>
+<div class="flex items-center justify-between border-t border-surface-dim pt-4 mt-auto">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-surface-variant">1</div>
+<div class="w-6 h-6 rounded-full bg-primary-container border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-primary-container">+</div>
+</div>
+<a class="font-label-md text-label-md text-primary cursor-pointer hover:underline" href="#">View Recipe</a>
+</div>
+</div>
+</div>
+<!-- Recipe Card 4 -->
+<div class="bg-surface rounded-2xl overflow-hidden shadow-soft group hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-48 w-full">
+<img class="w-full h-full object-cover" data-alt="A slice of rich, dark chocolate tart with a shiny ganache glaze, sprinkled with sea salt flakes, elegant dark mood lighting, high contrast food photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH9J-Rz1HptKI0nq468dTmX6Ly6ij2EhZVXXXUgChorhclVjuurVUgPZzAKgFnO8SCFRgFlskcXL4hWl2cA5uFlIhFBwWrHjvgGS0lqgZ_gcpvrUgg856YTEU9-6fDCq55F5FASgDee3hnwR8t_Q76Hyo8tMhdPmfM7VAoSbnreCX2SVqcPKjuMWzgHcOR95Rra4dV7CIVGEq5trGau8I0OH0xsUlZsM9F2dLv2b0HNjza2SAZS3G2"/>
+<button class="absolute top-4 right-4 w-10 h-10 bg-surface/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary shadow-sm hover:scale-110 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+<div class="absolute bottom-4 left-4 flex gap-2">
+<span class="bg-surface/90 backdrop-blur-sm px-3 py-1 rounded-full font-label-md text-[12px] text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> 1 hr
+                            </span>
+<span class="bg-tertiary-container/50 backdrop-blur-sm px-3 py-1 rounded-full font-label-md text-[12px] text-on-surface">
+                                Dessert
+                            </span>
+</div>
+</div>
+<div class="p-5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2 line-clamp-1">Salted Dark Chocolate Tart</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-4">Decadent ganache filling in a buttery shortbread crust, finished with flaky sea salt.</p>
+<div class="flex items-center justify-between border-t border-surface-dim pt-4 mt-auto">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-surface-variant">8</div>
+<div class="w-6 h-6 rounded-full bg-primary-container border-2 border-surface flex items-center justify-center text-[10px] font-bold text-on-primary-container">+</div>
+</div>
+<a class="font-label-md text-label-md text-primary cursor-pointer hover:underline" href="#">View Recipe</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty State Mockup (Hidden by default, shown for demonstration purposes as requested) -->
+<div class="mt-24 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-surface-dim rounded-3xl bg-surface-container-low hidden"><div class="w-32 h-32 bg-primary-fixed rounded-full flex items-center justify-center mb-6"><span class="material-symbols-outlined text-6xl text-primary" style="font-variation-settings: 'FILL' 1;">favorite</span></div><h2 class="font-headline-md text-headline-md text-on-surface mb-2">Your wishlist is empty</h2><p class="font-body-md text-body-md text-on-surface-variant max-w-md mb-8">Tap the heart on a recipe to save it here.</p><button class="bg-primary text-on-primary font-label-md text-label-md px-8 py-4 rounded-xl shadow-soft hover:bg-surface-tint transition-colors">Explore Recipes</button></div>
+</div>
+</main>
+<!-- Bottom Nav Bar (Mobile) -->
+<nav class="lg:hidden fixed bottom-0 w-full bg-surface-container-low pb-safe pt-2 px-4 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] z-50">
+<div class="flex justify-around items-center h-16">
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-label-md">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<div class="bg-primary-container/30 px-4 py-1 rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<span class="text-[10px] font-label-md font-bold">Wishlist</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="text-[10px] font-label-md">List</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-label-md">Profile</span>
+</a>
+</div>
+</nav>
+<style>
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 24px); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</body></html>

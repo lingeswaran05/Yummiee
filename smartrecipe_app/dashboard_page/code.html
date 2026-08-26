@@ -1,0 +1,460 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>SmartRecipe - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#ae3115",
+                        "tertiary-fixed-dim": "#c7c6c5",
+                        "outline-variant": "#e1bfb8",
+                        "surface-bright": "#fcf9f8",
+                        "primary-fixed-dim": "#ffb4a3",
+                        "on-surface-variant": "#59413c",
+                        "on-tertiary-fixed-variant": "#464746",
+                        "on-secondary-fixed": "#002204",
+                        "primary-fixed": "#ffdad2",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#ff6b4a",
+                        "inverse-surface": "#303030",
+                        "secondary-fixed-dim": "#78dc77",
+                        "on-error": "#ffffff",
+                        "outline": "#8d716a",
+                        "inverse-primary": "#ffb4a3",
+                        "surface-variant": "#e4e2e1",
+                        "surface-container-highest": "#e4e2e1",
+                        "on-background": "#1b1c1c",
+                        "surface-dim": "#dcd9d9",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#ae3115",
+                        "on-secondary-fixed-variant": "#005313",
+                        "on-surface": "#1b1c1c",
+                        "on-secondary-container": "#00731e",
+                        "on-primary-fixed-variant": "#8c1900",
+                        "surface-container-high": "#eae7e7",
+                        "tertiary": "#5e5e5d",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#91f78e",
+                        "surface": "#fcf9f8",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#661000",
+                        "surface-container-low": "#f6f3f2",
+                        "tertiary-fixed": "#e3e2e0",
+                        "surface-container": "#f0eded",
+                        "on-tertiary": "#ffffff",
+                        "background": "#fcf9f8",
+                        "inverse-on-surface": "#f3f0f0",
+                        "secondary-fixed": "#94f990",
+                        "tertiary-container": "#9a9a98",
+                        "secondary": "#006e1c",
+                        "on-tertiary-container": "#313231",
+                        "on-primary-fixed": "#3d0600",
+                        "on-tertiary-fixed": "#1a1c1b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "2xl": "1.25rem" // added for specific recipe cards based on guidance
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "margin-desktop": "40px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-xl": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-xl": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    },
+                    "boxShadow": {
+                        "sm": "0 4px 12px rgba(0,0,0,0.04)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        .recipe-card-shadow { box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        
+        /* Custom scrollbar for categories */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen">
+<!-- TopNavBar -->
+<nav class="sticky top-0 z-50 bg-surface shadow-sm w-full relative">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto h-20">
+<!-- Brand -->
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined filled text-primary text-3xl">restaurant</span>
+<span class="text-headline-sm font-headline-sm font-bold text-primary">CookSync</span>
+</div>
+<!-- Navigation Links (Desktop) -->
+<div class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+<!-- Active Item -->
+<a class="text-primary border-b-2 border-primary pb-1 font-bold active:scale-95 transition-transform duration-150" href="#">
+                    Dashboard
+                </a>
+<a class="text-on-surface-variant hover:text-primary transition-colors rounded-md px-2 py-1" href="#">
+                    Wishlist
+                </a>
+<a class="text-on-surface-variant hover:text-primary transition-colors rounded-md px-2 py-1" href="#">
+                    Shopping List
+                </a>
+<a class="text-on-surface-variant hover:text-primary transition-colors rounded-md px-2 py-1" href="#">
+                    Add Recipe
+                </a>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-full transition-colors flex items-center justify-center">
+
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant cursor-pointer hover:ring-2 hover:ring-primary-container transition-all">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="A high-quality close-up profile portrait of a smiling user in a bright, modern kitchen setting. Soft, natural lighting. Professional photography style. Warm and inviting aesthetic matching a premium food app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW7AFZYsPqRVutNiGScpcjEsVOfflI2fQ6yZL60JeZ0LLqVpOIyJubrJnYRkwTtb2X0BuHczGI-2y4p_laI_AskYDuj3hLau6T6UyqGg7e9Ka0VuzGEcS7FJsnUjRiYXZf0jcIWeVrw-jWIBumeD9zuGgh6z-pMFWD17IFom9YWwAQpupWJNB4ySCL8Y_Ag0HcIyiCYc3cem2L7EAa39ZG5xjIzKOSxrz1rybSyQR-HXS_LXgSNVU5">
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-8 md:py-12 flex flex-col gap-12">
+<!-- Hero Section -->
+<section class="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto w-full">
+<h1 class="font-headline-xl text-headline-lg-mobile md:text-headline-xl text-on-background">What are you cooking today?</h1>
+<div class="w-full flex items-center gap-3 relative">
+<div class="relative flex-1 group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant z-10">search</span>
+<input class="w-full h-14 pl-12 pr-4 bg-surface rounded-xl border border-surface-variant shadow-sm focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all font-body-lg text-body-lg text-on-surface placeholder-on-surface-variant/70" placeholder="Search recipes, ingredients..." type="text">
+</div>
+<button class="h-14 w-14 flex items-center justify-center bg-surface border border-surface-variant rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors shadow-sm">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+</button>
+</div>
+</section>
+<!-- Categories & Sorting -->
+<section class="w-full bg-surface-container-low rounded-2xl p-6 border border-surface-variant flex flex-col gap-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+<h2 class="font-headline-sm text-headline-sm text-on-background">Smart Recipe Suggestions</h2>
+</div>
+<div class="flex flex-1 max-w-md items-center gap-2">
+<input class="flex-1 h-10 px-4 bg-surface rounded-lg border border-surface-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all font-body-md text-body-md text-on-surface" placeholder="e.g. rice, tomato, onion" type="text">
+<button class="h-10 px-4 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors whitespace-nowrap">Find Recipes</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-surface p-4 rounded-xl border border-surface-variant flex items-center justify-between group cursor-pointer hover:border-primary-container transition-colors">
+<div class="flex flex-col">
+<span class="font-headline-sm text-body-lg text-on-background group-hover:text-primary transition-colors">Tomato Rice</span>
+<span class="text-body-sm text-on-surface-variant">3/5 ingredients available</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">chevron_right</span>
+</div>
+<div class="bg-surface p-4 rounded-xl border border-surface-variant flex items-center justify-between group cursor-pointer hover:border-primary-container transition-colors">
+<div class="flex flex-col">
+<span class="font-headline-sm text-body-lg text-on-background group-hover:text-primary transition-colors">Vegetable Fried Rice</span>
+<span class="text-body-sm text-on-surface-variant">4/6 ingredients available</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">chevron_right</span>
+</div>
+</div>
+</section><section class="w-full flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm text-on-background">Recently Viewed</h2>
+<a class="text-label-md font-label-md text-primary hover:text-on-primary-fixed-variant transition-colors" href="#">See All</a>
+</div>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+<!-- Compact Card 1 -->
+<div class="min-w-[240px] bg-surface rounded-xl overflow-hidden recipe-card-shadow border border-surface-container-low flex flex-col shrink-0">
+<div class="h-32 w-full overflow-hidden">
+<img alt="Creamy Garlic Pasta" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA64TK4wl98-Ea7Ds0MYHhLorzqlm97EVTR8ReGOYE0bdODMOOqLEe1YsDipQ4qUqd5yfAHg3Cib6UHkbFjX7pG-d4v5RtwV-skC6JDx4D7OR1OeqmpI9Dg_yEqLo4ArNnrYUD3Gd65TyY0MntSeuQpUf0NXERQDwLYl-A-NFP3ZjiGLxnd5-iqM_laFQI-u8jFnkvciJX5OeL_azZh4hDGtWkOmBTDVL8Qj_AqnQBEICAZpAYG4HhF">
+</div>
+<div class="p-3 flex flex-col gap-2">
+<h3 class="font-label-md text-on-background line-clamp-1">Creamy Garlic Pasta</h3>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 20 min
+          </span>
+<span class="inline-flex items-center gap-1 text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">restaurant</span> 2 servings
+          </span>
+</div>
+</div>
+</div>
+<!-- Compact Card 2 -->
+<div class="min-w-[240px] bg-surface rounded-xl overflow-hidden recipe-card-shadow border border-surface-container-low flex flex-col shrink-0">
+<div class="h-32 w-full overflow-hidden">
+<img alt="Vegetable Biryani" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa6XLP9crkxMBTnYDmsCVjzKXzwE7jLpGDxmzKK3paVTCfYO9Knit4LonHlmIUYrALR1EZ9ne4ACqer5e5XayEB_PPYPibqK_nTieLJKbuMO9kVq1KFS7VyQm0G7ChVgXH3BLiFZbv8NLXTY6CNqbjg0CETVXLSY9c63tQ3q3P7LsiIW2kNM_Aq-_2bKJvbpmLHWWpJlyWQK4fVDFMvX4pieED-dEM9G6s7saHQP_ow1IcG4sBHKNd">
+</div>
+<div class="p-3 flex flex-col gap-2">
+<h3 class="font-label-md text-on-background line-clamp-1">Vegetable Biryani</h3>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 40 min
+          </span>
+<span class="inline-flex items-center gap-1 text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">restaurant</span> 4 servings
+          </span>
+</div>
+</div>
+</div>
+<!-- Compact Card 3 -->
+<div class="min-w-[240px] bg-surface rounded-xl overflow-hidden recipe-card-shadow border border-surface-container-low flex flex-col shrink-0">
+<div class="h-32 w-full overflow-hidden">
+<img alt="Rich Chocolate Brownie" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_GqlcMD-GL9FBHq9otUs1-UekkN24AmylQrpErMweAK9g5fjYP4pF11zf4vJfT6YKlB1BqlYUFFUfp8H2c4zNH9gwnsBqpcBR45_uB9yf7_tf4ozdsGqBAUh7oo32aKqZSkEuSlr-gvpmEHYt4HZZpEkl9Thl3btafezQPnn2DBMzopg2H94nXHMzgugZzX7QCLH-wOxPc4XVFeZMZihLFBzIsd8vgE_dgKAz2IJ-tyV9kTkOOehc">
+</div>
+<div class="p-3 flex flex-col gap-2">
+<h3 class="font-label-md text-on-background line-clamp-1">Rich Chocolate Brownie</h3>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 50 min
+          </span>
+<span class="inline-flex items-center gap-1 text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">restaurant</span> 8 servings
+          </span>
+</div>
+</div>
+</div>
+</div>
+</section><section class="flex flex-col md:flex-row justify-between items-center gap-4 w-full">
+<div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto hide-scrollbar pb-2 md:pb-0">
+<button class="px-6 py-2 rounded-full bg-on-background text-surface font-label-md text-label-md whitespace-nowrap">All</button>
+<button class="px-6 py-2 rounded-full bg-surface border border-surface-variant text-on-surface-variant hover:bg-surface-container-low hover:text-on-background font-label-md text-label-md whitespace-nowrap transition-colors shadow-sm">Breakfast</button>
+<button class="px-6 py-2 rounded-full bg-surface border border-surface-variant text-on-surface-variant hover:bg-surface-container-low hover:text-on-background font-label-md text-label-md whitespace-nowrap transition-colors shadow-sm">Lunch</button>
+<button class="px-6 py-2 rounded-full bg-surface border border-surface-variant text-on-surface-variant hover:bg-surface-container-low hover:text-on-background font-label-md text-label-md whitespace-nowrap transition-colors shadow-sm">Dinner</button>
+<button class="px-6 py-2 rounded-full bg-surface border border-surface-variant text-on-surface-variant hover:bg-surface-container-low hover:text-on-background font-label-md text-label-md whitespace-nowrap transition-colors shadow-sm">Dessert</button>
+<button class="px-6 py-2 rounded-full bg-surface border border-surface-variant text-on-surface-variant hover:bg-surface-container-low hover:text-on-background font-label-md text-label-md whitespace-nowrap transition-colors shadow-sm">Snacks</button>
+<button class="px-6 py-2 rounded-full bg-surface border border-surface-variant text-on-surface-variant hover:bg-surface-container-low hover:text-on-background font-label-md text-label-md whitespace-nowrap transition-colors shadow-sm">Vegetarian</button>
+</div>
+<div class="flex items-center gap-2 self-start md:self-auto shrink-0">
+<span class="font-label-md text-label-md text-on-surface-variant">Sort by:</span>
+<select class="bg-transparent border-none font-label-md text-label-md text-on-background cursor-pointer focus:ring-0 py-0 pl-1 pr-6">
+<option>Recently Added</option>
+<option>Quickest</option>
+<option>Most Liked</option>
+</select>
+</div>
+</section>
+<!-- Main Layout: Grid + Sidebar -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Recipe Grid (Takes up 8/9 cols on large screens) -->
+<div class="lg:col-span-8 xl:col-span-9">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface rounded-2xl overflow-hidden recipe-card-shadow group flex flex-col h-full border border-surface-container-low hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-48 w-full overflow-hidden">
+<div class="bg-cover bg-center w-full h-full group-hover:scale-105 transition-transform duration-500" data-alt="High-quality professional food photography of creamy garlic pasta in a white ceramic bowl, garnished with fresh parsley and black pepper. Bright, natural lighting, modern soft minimalist aesthetic, clean background." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA64TK4wl98-Ea7Ds0MYHhLorzqlm97EVTR8ReGOYE0bdODMOOqLEe1YsDipQ4qUqd5yfAHg3Cib6UHkbFjX7pG-d4v5RtwV-skC6JDx4D7OR1OeqmpI9Dg_yEqLo4ArNnrYUD3Gd65TyY0MntSeuQpUf0NXERQDwLYl-A-NFP3ZjiGLxnd5-iqM_laFQI-u8jFnkvciJX5OeL_azZh4hDGtWkOmBTDVL8Qj_AqnQBEICAZpAYG4HhF')"></div>
+<button class="absolute top-3 right-3 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined filled text-[20px] text-primary" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-5 flex flex-col flex-1 gap-4">
+<div class="flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-background line-clamp-2 mb-2 group-hover:text-primary transition-colors">Creamy Garlic Pasta</h3>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 20 min
+                                    </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">restaurant</span> 2 servings
+                                    </span>
+</div>
+</div>
+<button class="w-full py-3 bg-surface border border-outline-variant rounded-xl font-label-md text-label-md text-on-background hover:border-primary-container hover:text-primary-container transition-colors">
+                                View Recipe
+                            </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface rounded-2xl overflow-hidden recipe-card-shadow group flex flex-col h-full border border-surface-container-low hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-48 w-full overflow-hidden">
+<div class="bg-cover bg-center w-full h-full group-hover:scale-105 transition-transform duration-500" data-alt="High-quality professional food photography of vibrant tomato rice garnished with fresh cilantro on a minimalist rustic plate. Bright, airy, soft natural lighting, light mode aesthetic, clean white table." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDg-0HRbAkcHfzyodb59pzY5mNQACOomM-J8wQbRqTMANc2Zh9LmU6LSAIiQM8sKkTix2nc4xO4OcewD6Nct5i-pyY-E6uHIjc1vNnbF-aLAfw0K19xWVDg-5tWOYV7xygR3D-G6K0NPs5Y4nfwQK-RBwBjhSS_RP5wi34perW78bQStkt0wr1scoYu9jDIOXIRvsHQo5_D_JWl-BEMN6v7iasmCAgzQMncEEBsn4SZzndtJEfZ7LNT')"></div>
+<button class="absolute top-3 right-3 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-5 flex flex-col flex-1 gap-4">
+<div class="flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-background line-clamp-2 mb-2 group-hover:text-primary transition-colors">Tomato Rice</h3>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 30 min
+                                    </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">restaurant</span> 4 servings
+                                    </span>
+</div>
+</div>
+<button class="w-full py-3 bg-surface border border-outline-variant rounded-xl font-label-md text-label-md text-on-background hover:border-primary-container hover:text-primary-container transition-colors">
+                                View Recipe
+                            </button>
+</div>
+</div>
+<!-- Keep it brief for effort 0.25, normally I'd do all 6 -->
+<!-- Card 3: Vegetable Biryani -->
+<div class="bg-surface rounded-2xl overflow-hidden recipe-card-shadow group flex flex-col h-full border border-surface-container-low hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-48 w-full overflow-hidden">
+<div class="bg-cover bg-center w-full h-full group-hover:scale-105 transition-transform duration-500" data-alt="Professional food photography of aromatic vegetable biryani in a traditional clay pot, garnished with fried onions and fresh mint. Warm lighting, rich colors, authentic aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDa6XLP9crkxMBTnYDmsCVjzKXzwE7jLpGDxmzKK3paVTCfYO9Knit4LonHlmIUYrALR1EZ9ne4ACqer5e5XayEB_PPYPibqK_nTieLJKbuMO9kVq1KFS7VyQm0G7ChVgXH3BLiFZbv8NLXTY6CNqbjg0CETVXLSY9c63tQ3q3P7LsiIW2kNM_Aq-_2bKJvbpmLHWWpJlyWQK4fVDFMvX4pieED-dEM9G6s7saHQP_ow1IcG4sBHKNd')"></div>
+<button class="absolute top-3 right-3 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-5 flex flex-col flex-1 gap-4">
+<div class="flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-background line-clamp-2 mb-2 group-hover:text-primary transition-colors">Vegetable Biryani</h3>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 40 min
+                </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">restaurant</span> 4 servings
+                </span>
+</div>
+</div>
+<button class="w-full py-3 bg-surface border border-outline-variant rounded-xl font-label-md text-label-md text-on-background hover:border-primary-container hover:text-primary-container transition-colors">
+            View Recipe
+        </button>
+</div>
+</div>
+<!-- Card 4: Fluffy Pancakes -->
+<div class="bg-surface rounded-2xl overflow-hidden recipe-card-shadow group flex flex-col h-full border border-surface-container-low hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-48 w-full overflow-hidden">
+<div class="bg-cover bg-center w-full h-full group-hover:scale-105 transition-transform duration-500" data-alt="Stack of fluffy golden-brown pancakes topped with a pat of melting butter and drizzled with maple syrup. Bright morning light, cozy breakfast setting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDkjPDNAs2DM0zwGzcFeE0zRT-hzHlTUOoFZUiNvvBzA07RElS7STLEZpQ7ErEsdsifB3DoKOTedRlnIgIGDgIRRhRzR5c1uF60B11sDQIiQlbMeENM3czyKAo01pAxQ0B5xLMABE1SIuz2sORkGj78rMATB4hUG7QCjRwKT8CY-9l2mUXSEa1978J9SuBEhYrFfc8p81Qv2xjkPMSbzZqwlXOvZvdDRRa2PrS_0-Rs35yepK9yF98I')"></div>
+<button class="absolute top-3 right-3 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-5 flex flex-col flex-1 gap-4">
+<div class="flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-background line-clamp-2 mb-2 group-hover:text-primary transition-colors">Fluffy Pancakes</h3>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 15 min
+                </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">restaurant</span> 2 servings
+                </span>
+</div>
+</div>
+<button class="w-full py-3 bg-surface border border-outline-variant rounded-xl font-label-md text-label-md text-on-background hover:border-primary-container hover:text-primary-container transition-colors">
+            View Recipe
+        </button>
+</div>
+</div>
+<!-- Card 5: Spicy Chicken Curry -->
+<div class="bg-surface rounded-2xl overflow-hidden recipe-card-shadow group flex flex-col h-full border border-surface-container-low hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-48 w-full overflow-hidden">
+<div class="bg-cover bg-center w-full h-full group-hover:scale-105 transition-transform duration-500" data-alt="Rich and aromatic spicy chicken curry in a bowl, served with fresh naan bread. Deep red sauce, tender chicken, vibrant spices, moody lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBoWu_LAvBza6OLKuTrGO9PiCYddfbfhQT0FUVTU5R0OABbV60ZyWgNGrMmSgthco-LK8IAVRJDV6bhQ9c5_VV5YAG_OwKgNA743sn-a1GLLL6G5jFOXRfKoYOpJ5T1D4XSLux9O8rC8FggguK4GVBPaw62xOaB7C9QVtYnmqDO_8Ifc-bQgZZjWFveMEbTTI3FAeTrVolLNkbOF3sCnQ-yQuSsnP9-xNbHZxjeKQTCIZgSh_QRLUf9')"></div>
+<button class="absolute top-3 right-3 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-5 flex flex-col flex-1 gap-4">
+<div class="flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-background line-clamp-2 mb-2 group-hover:text-primary transition-colors">Spicy Chicken Curry</h3>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 45 min
+                </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">restaurant</span> 4 servings
+                </span>
+</div>
+</div>
+<button class="w-full py-3 bg-surface border border-outline-variant rounded-xl font-label-md text-label-md text-on-background hover:border-primary-container hover:text-primary-container transition-colors">
+            View Recipe
+        </button>
+</div>
+</div>
+<!-- Card 6: Rich Chocolate Brownie -->
+<div class="bg-surface rounded-2xl overflow-hidden recipe-card-shadow group flex flex-col h-full border border-surface-container-low hover:-translate-y-1 transition-transform duration-300">
+<div class="relative h-48 w-full overflow-hidden">
+<div class="bg-cover bg-center w-full h-full group-hover:scale-105 transition-transform duration-500" data-alt="Decadent fudgy chocolate brownies with a crackly top, stacked on a wooden board. Dark chocolate, rich texture, gourmet dessert photography." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC_GqlcMD-GL9FBHq9otUs1-UekkN24AmylQrpErMweAK9g5fjYP4pF11zf4vJfT6YKlB1BqlYUFFUfp8H2c4zNH9gwnsBqpcBR45_uB9yf7_tf4ozdsGqBAUh7oo32aKqZSkEuSlr-gvpmEHYt4HZZpEkl9Thl3btafezQPnn2DBMzopg2H94nXHMzgugZzX7QCLH-wOxPc4XVFeZMZihLFBzIsd8vgE_dgKAz2IJ-tyV9kTkOOehc')"></div>
+<button class="absolute top-3 right-3 p-2 bg-surface/80 backdrop-blur-sm rounded-full text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+<div class="p-5 flex flex-col flex-1 gap-4">
+<div class="flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-background line-clamp-2 mb-2 group-hover:text-primary transition-colors">Rich Chocolate Brownie</h3>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 50 min
+                </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-[12px]">
+<span class="material-symbols-outlined text-[14px]">restaurant</span> 8 servings
+                </span>
+</div>
+</div>
+<button class="w-full py-3 bg-surface border border-outline-variant rounded-xl font-label-md text-label-md text-on-background hover:border-primary-container hover:text-primary-container transition-colors">
+            View Recipe
+        </button>
+</div>
+</div></div>
+</div>
+<!-- Sidebar -->
+<div class="lg:col-span-4 xl:col-span-3 flex flex-col gap-6">
+<!-- Smart Suggestions -->
+<!-- Quick Actions -->
+<div class="bg-surface rounded-2xl p-6 border border-surface-variant flex flex-col gap-3">
+<h3 class="font-headline-sm text-headline-sm text-on-background mb-2">Quick Actions</h3>
+<button class="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-container-low text-on-background transition-colors text-left w-full border border-transparent hover:border-surface-variant">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</div>
+<span class="font-label-md text-label-md flex-1">Add New Recipe</span>
+</button>
+<button class="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-container-low text-on-background transition-colors text-left w-full border border-transparent hover:border-surface-variant">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</div>
+<span class="font-label-md text-label-md flex-1">View Wishlist</span>
+</button>
+<button class="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-container-low text-on-background transition-colors text-left w-full border border-transparent hover:border-surface-variant">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+</div>
+<span class="font-label-md text-label-md flex-1">Open Shopping List</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+
+
+</body></html>
