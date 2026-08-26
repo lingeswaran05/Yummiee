@@ -1,0 +1,5 @@
+# Created at 2026-08-25T22:53:45.997
+Boot Manifest-JAR contains absolute paths in classpath 'D:\Hackathon\Yummy\Yummy\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+'other' has different root
+
