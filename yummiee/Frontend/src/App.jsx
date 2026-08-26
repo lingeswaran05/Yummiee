@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Navigate, Routes, Route } from "react-router-dom";
 
 import { WishlistProvider } from "./context/WishlistContext";
 import { ShoppingListProvider } from "./context/ShoppingListContext";
@@ -16,7 +16,7 @@ import MyRecipes from "./pages/MyRecipes";
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <WishlistProvider>
         <ShoppingListProvider>
 
@@ -72,11 +72,13 @@ function App() {
               element={<ShoppingList />}
             />
 
+            <Route path="*" element={<Navigate to="/" replace />} />
+
           </Routes>
 
         </ShoppingListProvider>
       </WishlistProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

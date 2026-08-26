@@ -43,10 +43,10 @@ function Login() {
           {/* Clerk SignIn Component */}
           <div className="flex w-full justify-center">
             <SignIn
-              routing="hash"
-              signUpUrl="/register"
-              fallbackRedirectUrl="/dashboard"
-              forceRedirectUrl="/dashboard"
+              routing="virtual"
+              signUpUrl="/#/register"
+              fallbackRedirectUrl="/#/dashboard"
+              forceRedirectUrl="/#/dashboard"
             />
           </div>
         </div>
