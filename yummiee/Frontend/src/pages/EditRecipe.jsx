@@ -375,7 +375,7 @@ function EditRecipe() {
               {ingredients.map((ingredient) => (
                 <div
                   key={ingredient.id}
-                  className="grid grid-cols-[auto_1fr_100px_120px_auto] items-center gap-3"
+                  className="grid grid-cols-[minmax(0,1fr)_64px_84px_32px] items-center gap-2 sm:grid-cols-[auto_minmax(0,1fr)_100px_120px_auto] sm:gap-3"
                 >
                   <GripVertical className="hidden h-5 w-5 text-text-secondary sm:block" />
 
@@ -385,7 +385,7 @@ function EditRecipe() {
                     value={ingredient.name}
                     onChange={(e) => updateIngredient(ingredient.id, "name", e.target.value)}
                     placeholder="Ingredient"
-                    className="h-12 min-w-0 rounded-xl border border-border px-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    className="h-12 min-w-0 rounded-xl border border-border px-3 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 sm:px-4"
                   />
 
                   <input
@@ -399,14 +399,14 @@ function EditRecipe() {
                       updateIngredient(ingredient.id, "quantity", val ? parseInt(val, 10) : "");
                     }}
                     placeholder="Qty"
-                    className="h-12 rounded-xl border border-border px-3 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    className="h-12 min-w-0 rounded-xl border border-border px-2 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 sm:px-3"
                   />
 
                   <select
                     required
                     value={ingredient.unit}
                     onChange={(e) => updateIngredient(ingredient.id, "unit", e.target.value)}
-                    className="h-12 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    className="h-12 min-w-0 rounded-xl border border-border bg-white px-2 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 sm:px-3"
                   >
                     <option value="" disabled>Unit</option>
                     <option value="g">g (grams)</option>
@@ -432,7 +432,7 @@ function EditRecipe() {
                     type="button"
                     onClick={() => removeIngredient(ingredient.id)}
                     disabled={ingredients.length === 1}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-red-50 hover:text-red-600 disabled:opacity-30"
+                    className="flex h-10 w-8 items-center justify-center rounded-lg text-text-secondary transition hover:bg-red-50 hover:text-red-600 disabled:opacity-30 sm:w-10"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
