@@ -1,0 +1,32 @@
+# Build output
+**/target/
+**/dist/
+**/node_modules/
+
+# Database files
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+**/data/*.db
+yummiee-java-db*
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Logs
+*.log
+**/logs/
+
+# IDE / OS files
+.DS_Store
+.idea/
+.vscode/
+*.iml
