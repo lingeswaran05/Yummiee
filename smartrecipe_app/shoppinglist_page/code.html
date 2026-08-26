@@ -1,0 +1,221 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>CookSync - Recipe Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-fixed-variant": "#005313",
+                    "surface-container-high": "#eae7e7",
+                    "on-primary-fixed-variant": "#8c1900",
+                    "surface-variant": "#e4e2e1",
+                    "secondary-container": "#91f78e",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#ffb4a3",
+                    "on-surface": "#1b1c1c",
+                    "primary": "#ae3115",
+                    "tertiary-fixed-dim": "#c7c6c5",
+                    "secondary": "#006e1c",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#ffdad2",
+                    "on-tertiary-container": "#313231",
+                    "outline": "#8d716a",
+                    "surface-container-highest": "#e4e2e1",
+                    "secondary-fixed-dim": "#78dc77",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#5e5e5d",
+                    "tertiary-container": "#9a9a98",
+                    "on-primary-fixed": "#3d0600",
+                    "on-secondary-fixed": "#002204",
+                    "on-tertiary-fixed-variant": "#464746",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#f6f3f2",
+                    "primary-container": "#ff6b4a",
+                    "surface-container": "#f0eded",
+                    "surface-tint": "#ae3115",
+                    "inverse-primary": "#ffb4a3",
+                    "on-tertiary-fixed": "#1a1c1b",
+                    "on-secondary": "#ffffff",
+                    "surface": "#fcf9f8",
+                    "surface-bright": "#fcf9f8",
+                    "error-container": "#ffdad6",
+                    "on-surface-variant": "#59413c",
+                    "on-secondary-container": "#00731e",
+                    "inverse-on-surface": "#f3f0f0",
+                    "on-primary-container": "#661000",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "background": "#fcf9f8",
+                    "inverse-surface": "#303030",
+                    "surface-dim": "#dcd9d9",
+                    "on-background": "#1b1c1c",
+                    "outline-variant": "#e1bfb8",
+                    "tertiary-fixed": "#e3e2e0",
+                    "secondary-fixed": "#94f990"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "unit": "8px",
+                    "margin-mobile": "20px",
+                    "gutter": "24px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-xl": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 max-w-container-max mx-auto bg-surface dark:bg-surface-dim shadow-sm dark:shadow-none transition-all duration-200">
+<div class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-bold">
+            CookSync
+        </div>
+<div class="hidden md:flex space-x-8 items-center font-body-md text-body-md text-on-surface-variant dark:text-on-tertiary-fixed-variant">
+<a class="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Dashboard</a>
+<a class="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Wishlist</a>
+<a class="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Shopping List</a>
+<a class="hover:text-primary dark:hover:text-primary-fixed-dim transition-colors" href="#">Add Recipe</a>
+</div>
+<div class="flex items-center">
+<button class="text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:text-primary dark:hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow pt-24 pb-16 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full">
+<article class="max-w-4xl mx-auto space-y-12">
+<!-- Hero Section -->
+<section class="space-y-6"><button class="flex items-center space-x-2 text-primary hover:text-primary-container transition-colors font-label-md mb-4">
+<span class="material-symbols-outlined">arrow_back</span>
+<span class="">Back to Recipes</span>
+</button>
+<div class="rounded-xl overflow-hidden shadow-sm h-[400px] relative">
+<img class="w-full h-full object-cover" data-alt="A top-down view of a vibrant, steaming bowl of vegetable biryani placed on a rustic wooden table. The dish is rich with yellow saffron rice, bright green peas, orange carrots, and toasted cashews. Soft, natural daylight streams in from a nearby window, creating a warm, inviting, and appetizing mood typical of high-end food photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA95i2PRqKD5-ieUFryaJrR-fMS_lpy1IswrnCyuN1mFMDRJ2JffKR5gmj2QyiS0zt_y7JttSTveur1-0e5XcgndEOn45Mx-gYW18Xs-pwZZmxXX2yEn5AqjvGz9DDpqNguTGucCws6O0l-6LEy-fXNQ-XW7d57URmBeJ0Ve5VwDwPsRVR-NdBBbSQwIh4ElCOw3pgWjkt_p9RoCuMKtc8VDtZ9X05HWPV6i6Zu9KpIdTJZHmIUFjlA">
+<div class="absolute bottom-4 left-4 glass-card px-4 py-2 rounded-lg flex items-center space-x-2 shadow-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">timer</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">45 min</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between w-full"><h1 class="font-headline-xl text-headline-xl text-on-surface">Vegetable Biryani</h1><button class="text-primary hover:bg-primary-fixed rounded-full p-2 transition-colors flex items-center" title="Add to Wishlist"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">favorite</span></button></div>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                        A fragrant and flavorful Indian rice dish packed with mixed vegetables, warm spices, and aromatic basmati rice. Perfect for a comforting dinner.
+                    </p>
+<div class="flex items-center space-x-4 pt-2"><span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Servings</span><div class="flex items-center bg-surface-container rounded-lg p-1"><button class="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary-fixed rounded transition-colors" id="btn-decrease-servings"><span class="material-symbols-outlined text-body-md">remove</span></button><span class="px-4 font-bold text-on-surface" id="servings-counter">2</span><button class="w-8 h-8 flex items-center justify-center text-primary hover:bg-primary-fixed rounded transition-colors" id="btn-increase-servings"><span class="material-symbols-outlined text-body-md">add</span></button></div></div></div>
+</section>
+<!-- Ingredients Section -->
+<section class="space-y-6 bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-surface-variant">
+<div class="flex justify-between items-center pb-4 border-b border-surface-variant">
+<h2 class="font-headline-md text-headline-md text-on-surface">Ingredients</h2>
+<button class="flex items-center space-x-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary-fixed transition-colors font-label-md"><span class="material-symbols-outlined text-body-md">add_shopping_cart</span><span class="">Add Ingredients to Shopping List</span></button><a class="flex items-center space-x-2 px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary-fixed transition-colors font-label-md ml-4" href="#"><span class="material-symbols-outlined text-body-md">shopping_cart</span><span class="">Go to Shopping List</span></a>
+</div>
+<ul class="space-y-4">
+<!-- Ingredient 1 -->
+<li class="flex justify-between items-center py-3 border-b border-surface-variant last:border-0 hover:bg-surface-container-low transition-colors px-2 rounded">
+<div class="flex items-center space-x-4">
+<span class="w-16 text-right font-label-md text-label-md text-on-surface-variant ingredient-qty" data-base-qty="1" data-unit="cup">1 cup</span>
+<span class="font-body-md text-body-md text-on-surface">Basmati Rice</span>
+</div>
+<button class="text-primary hover:bg-primary-fixed rounded-full p-2 transition-colors flex items-center" title="Add to Shopping List"><span class="material-symbols-outlined">add_shopping_cart</span></button>
+</li>
+<!-- Ingredient 2 -->
+<li class="flex justify-between items-center py-3 border-b border-surface-variant last:border-0 hover:bg-surface-container-low transition-colors px-2 rounded">
+<div class="flex items-center space-x-4">
+<span class="w-16 text-right font-label-md text-label-md text-on-surface-variant ingredient-qty" data-base-qty="2" data-unit="cups">2 cups</span>
+<span class="font-body-md text-body-md text-on-surface">Mixed Vegetables (carrots, peas, beans)</span>
+</div>
+<button class="text-primary hover:bg-primary-fixed rounded-full p-2 transition-colors flex items-center" title="Add to Shopping List"><span class="material-symbols-outlined">add_shopping_cart</span></button>
+</li>
+<!-- Ingredient 3 -->
+<li class="flex justify-between items-center py-3 border-b border-surface-variant last:border-0 hover:bg-surface-container-low transition-colors px-2 rounded">
+<div class="flex items-center space-x-4">
+<span class="w-16 text-right font-label-md text-label-md text-on-surface-variant ingredient-qty" data-base-qty="1" data-unit="tbsp">1 tbsp</span>
+<span class="font-body-md text-body-md text-on-surface">Biryani Masala</span>
+</div>
+<button class="text-primary hover:bg-primary-fixed rounded-full p-2 transition-colors flex items-center" title="Add to Shopping List"><span class="material-symbols-outlined">add_shopping_cart</span></button>
+</li>
+</ul>
+</section>
+<!-- Instructions Section -->
+<section class="space-y-6 bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-surface-variant"><h2 class="font-headline-md text-headline-md text-on-surface pb-4 border-b border-surface-variant">Instructions</h2><ol class="space-y-6"><li class="flex gap-4"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">1</span><p class="text-body-md text-on-surface-variant pt-1">Wash and soak 1 cup of Basmati rice for 30 minutes. Drain completely and set aside. In a large pot, bring water to a boil with whole spices (cloves, cardamom, cinnamon) and cook rice until 70% done.</p></li><li class="flex gap-4"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">2</span><p class="text-body-md text-on-surface-variant pt-1">Heat oil or ghee in a large heavy-bottomed pan. Add cumin seeds, sliced onions, and ginger-garlic paste. Sauté until onions are golden brown.</p></li><li class="flex gap-4"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">3</span><p class="text-body-md text-on-surface-variant pt-1">Add the mixed vegetables (carrots, peas, beans, cauliflower) along with Biryani Masala, turmeric, and chili powder. Cook for 5-7 minutes until the vegetables are slightly tender.</p></li><li class="flex gap-4"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">4</span><p class="text-body-md text-on-surface-variant pt-1">Layer the partially cooked rice over the vegetable base. Sprinkle with saffron-infused milk, fresh mint, and fried onions.</p></li><li class="flex gap-4"><span class="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">5</span><p class="text-body-md text-on-surface-variant pt-1">Cover tightly with a lid (or seal with dough for 'Dum' style). Cook on very low heat for 15-20 minutes until the rice is fully cooked and fragrant.</p></li></ol></section>
+</article>
+</main>
+<!-- Footer -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let currentServings = 2;
+        const btnDecrease = document.getElementById('btn-decrease-servings');
+        const btnIncrease = document.getElementById('btn-increase-servings');
+        const servingsCounter = document.getElementById('servings-counter');
+        const ingredients = document.querySelectorAll('.ingredient-qty');
+
+        function updateServings(newServings) {
+            if (newServings < 1) return;
+            currentServings = newServings;
+            servingsCounter.textContent = currentServings;
+            
+            ingredients.forEach(el => {
+                const baseQty = parseFloat(el.getAttribute('data-base-qty'));
+                let unit = el.getAttribute('data-unit');
+                const newQty = (baseQty / 2) * currentServings;
+                
+                let displayQty = Number.isInteger(newQty) ? newQty : newQty.toFixed(1);
+                
+                if (unit === 'cup' && newQty !== 1) unit = 'cups';
+                if (unit === 'cups' && newQty === 1) unit = 'cup';
+                
+                el.textContent = `${displayQty} ${unit}`;
+            });
+        }
+
+        btnDecrease.addEventListener('click', () => updateServings(currentServings - 1));
+        btnIncrease.addEventListener('click', () => updateServings(currentServings + 1));
+    });
+</script>
+
+
+</body></html>
