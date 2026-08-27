@@ -106,8 +106,10 @@ public class RecipeService {
     }
 
     @Transactional
-    public Optional<RecipeDTO> updateRecipe(Long id, RecipeDTO dto) {
-        return recipeRepository.findById(id).map(recipe -> {
+    public Optional<RecipeDTO> updateRecipe(Long id, RecipeDTO dto, Long userId) {
+        return recipeRepository.findById(id)
+                .filter(recipe -> Objects.equals(recipe.getUserId(), userId))
+                .map(recipe -> {
             if (dto.getName() != null) recipe.setName(dto.getName());
             if (dto.getDescription() != null) recipe.setDescription(dto.getDescription());
             if (dto.getCategory() != null) recipe.setCategory(dto.getCategory());
@@ -150,13 +152,14 @@ public class RecipeService {
     }
 
     @Transactional
-    public boolean deleteRecipe(Long id) {
-        if (recipeRepository.existsById(id)) {
+    public boolean deleteRecipe(Long id, Long userId) {
+        return recipeRepository.findById(id)
+                .filter(recipe -> Objects.equals(recipe.getUserId(), userId))
+                .map(recipe -> {
             wishlistRepository.deleteByRecipeId(id);
-            recipeRepository.deleteById(id);
+            recipeRepository.delete(recipe);
             return true;
-        }
-        return false;
+        }).orElse(false);
     }
 
     public RecipeDTO toDTO(Recipe recipe) {

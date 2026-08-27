@@ -2,22 +2,25 @@ const rawApiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_
 const cleanApiUrl = rawApiUrl.replace(/\/$/, "");
 const API_BASE_URL = cleanApiUrl.endsWith("/api") ? cleanApiUrl : `${cleanApiUrl}/api`;
 
-// Helper function to extract auth headers from Clerk window object or local storage
+let currentAuth = {
+  userId: null,
+  getToken: null,
+};
+
+// Clerk's React hooks provide this state. Keeping it here makes every API call
+// use the active account rather than a browser-wide fallback user.
+export function setApiAuth({ userId = null, getToken = null } = {}) {
+  currentAuth = { userId, getToken };
+}
+
 async function getAuthHeaders() {
   let token = null;
-  let userId = null;
-
-  if (typeof window !== "undefined" && window.Clerk && window.Clerk.session) {
+  if (currentAuth.getToken) {
     try {
-      token = await window.Clerk.session.getToken();
-      userId = window.Clerk.user?.id;
+      token = await currentAuth.getToken();
     } catch (e) {
       console.warn("Could not retrieve Clerk token:", e);
     }
-  }
-
-  if (!token) {
-    token = localStorage.getItem("clerk_token") || "mock_clerk_user_1";
   }
 
   const headers = {
@@ -27,8 +30,8 @@ async function getAuthHeaders() {
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-  if (userId) {
-    headers["x-clerk-user-id"] = userId;
+  if (currentAuth.userId) {
+    headers["x-clerk-user-id"] = currentAuth.userId;
   }
 
   return headers;

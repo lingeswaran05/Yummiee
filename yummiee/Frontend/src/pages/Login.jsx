@@ -1,11 +1,13 @@
 import { SignIn, Show, useAuth } from "@clerk/react";
 import { ChefHat } from "lucide-react";
 import { useEffect } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 function Login() {
   const { isSignedIn, isLoaded } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const signedOut = new URLSearchParams(location.search).get("signed_out") === "1";
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
@@ -49,6 +51,12 @@ function Login() {
               forceRedirectUrl="/#/dashboard"
             />
           </div>
+
+          {signedOut && (
+            <p role="status" className="mt-5 text-center text-sm font-medium text-secondary">
+              You have signed out successfully.
+            </p>
+          )}
         </div>
       </Show>
     </main>

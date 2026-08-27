@@ -53,15 +53,17 @@ public class RecipeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateRecipe(@PathVariable Long id, @RequestBody RecipeDTO recipeDTO) {
-        return recipeService.updateRecipe(id, recipeDTO)
+    public ResponseEntity<?> updateRecipe(@PathVariable Long id, @RequestBody RecipeDTO recipeDTO, HttpServletRequest request) {
+        Long userId = userService.getOrCreateUserId(request);
+        return recipeService.updateRecipe(id, recipeDTO, userId)
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Recipe not found"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRecipe(@PathVariable Long id) {
-        boolean deleted = recipeService.deleteRecipe(id);
+    public ResponseEntity<Void> deleteRecipe(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = userService.getOrCreateUserId(request);
+        boolean deleted = recipeService.deleteRecipe(id, userId);
         if (deleted) {
             return ResponseEntity.noContent().build();
         } else {

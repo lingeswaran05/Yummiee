@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/react";
 import { HashRouter, Navigate, Routes, Route } from "react-router-dom";
 
 import { WishlistProvider } from "./context/WishlistContext";
@@ -14,70 +15,47 @@ import Wishlist from "./pages/Wishlist";
 import ShoppingList from "./pages/ShoppingList";
 import MyRecipes from "./pages/MyRecipes";
 
+function ProtectedRoute({ children }) {
+  const { isLoaded, isSignedIn } = useAuth();
+
+  if (!isLoaded) return null;
+  return isSignedIn ? children : <Navigate to="/" replace />;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/my-recipes" element={<ProtectedRoute><MyRecipes /></ProtectedRoute>} />
+      <Route path="/add-recipe" element={<ProtectedRoute><AddRecipe /></ProtectedRoute>} />
+      <Route path="/edit-recipe/:id" element={<ProtectedRoute><EditRecipe /></ProtectedRoute>} />
+      <Route path="/recipe/:id" element={<ProtectedRoute><RecipeDetails /></ProtectedRoute>} />
+      <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+      <Route path="/shopping-list" element={<ProtectedRoute><ShoppingList /></ProtectedRoute>} />
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
 function App() {
+  const { isSignedIn, userId } = useAuth();
+
   return (
     <HashRouter>
-      <WishlistProvider>
-        <ShoppingListProvider>
-
-          <Routes>
-
-            <Route
-              path="/"
-              element={<Login />}
-            />
-
-            <Route
-              path="/register"
-              element={<Register />}
-            />
-
-            <Route
-              path="/forgot-password"
-              element={<ForgotPassword />}
-            />
-
-            <Route
-              path="/dashboard"
-              element={<Dashboard />}
-            />
-
-            <Route
-              path="/my-recipes"
-              element={<MyRecipes />}
-            />
-
-            <Route
-              path="/add-recipe"
-              element={<AddRecipe />}
-            />
-
-            <Route
-              path="/edit-recipe/:id"
-              element={<EditRecipe />}
-            />
-
-            <Route
-              path="/recipe/:id"
-              element={<RecipeDetails />}
-            />
-
-            <Route
-              path="/wishlist"
-              element={<Wishlist />}
-            />
-
-            <Route
-              path="/shopping-list"
-              element={<ShoppingList />}
-            />
-
-            <Route path="*" element={<Navigate to="/" replace />} />
-
-          </Routes>
-
-        </ShoppingListProvider>
-      </WishlistProvider>
+      {isSignedIn ? (
+        <WishlistProvider key={userId}>
+          <ShoppingListProvider>
+            <AppRoutes />
+          </ShoppingListProvider>
+        </WishlistProvider>
+      ) : (
+        <AppRoutes />
+      )}
     </HashRouter>
   );
 }

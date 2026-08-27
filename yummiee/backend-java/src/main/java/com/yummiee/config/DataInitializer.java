@@ -7,21 +7,38 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
+
+    private static final Set<String> DEFAULT_RECIPE_NAMES = Set.of(
+            "Creamy Tuscan Garlic Chicken",
+            "Avocado Toast with Poached Eggs");
 
     @Autowired
     private RecipeRepository recipeRepository;
 
     @Override
     public void run(String... args) throws Exception {
+        // Earlier versions assigned the sample recipes to database user 1.
+        // They are catalog recipes, not recipes created by that account.
+        List<Recipe> legacySeedRecipes = recipeRepository.findAll().stream()
+                .filter(recipe -> DEFAULT_RECIPE_NAMES.contains(recipe.getName()))
+                .filter(recipe -> recipe.getUserId() != null)
+                .toList();
+        legacySeedRecipes.forEach(recipe -> recipe.setUserId(null));
+        if (!legacySeedRecipes.isEmpty()) {
+            recipeRepository.saveAll(legacySeedRecipes);
+        }
+
         if (recipeRepository.count() == 0) {
             System.out.println("Seeding default recipes into Java Spring Boot Database...");
 
             // Recipe 1: Creamy Tuscan Garlic Chicken
             Recipe recipe1 = Recipe.builder()
-                    .userId(1L)
+                    .userId(null)
                     .name("Creamy Tuscan Garlic Chicken")
                     .description("Tender chicken breasts in a rich, creamy sun-dried tomato and spinach sauce. Perfect for a cozy weeknight dinner.")
                     .category("Dinner")
@@ -51,7 +68,7 @@ public class DataInitializer implements CommandLineRunner {
 
             // Recipe 2: Avocado Toast with Poached Eggs
             Recipe recipe2 = Recipe.builder()
-                    .userId(1L)
+                    .userId(null)
                     .name("Avocado Toast with Poached Eggs")
                     .description("Artisanal sourdough topped with smashed avocado, perfectly poached eggs, microgreens, and red pepper flakes.")
                     .category("Breakfast")

@@ -3,6 +3,7 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 
 import MainLayout from "../layouts/MainLayout";
 import RecipeCard from "../components/RecipeCard";
+import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
 import { fetchRecipes } from "../services/api";
 
 function Dashboard() {
@@ -138,9 +139,11 @@ function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {recipes.slice(0, 4).map((recipe) => (
-                <RecipeCard key={recipe.id} recipe={recipe} />
-              ))}
+              {loading
+                ? Array.from({ length: 4 }, (_, index) => <RecipeCardSkeleton key={index} />)
+                : recipes.slice(0, 4).map((recipe) => (
+                    <RecipeCard key={recipe.id} recipe={recipe} />
+                  ))}
             </div>
           </section>
         )}
@@ -201,8 +204,10 @@ function Dashboard() {
           </div>
 
           {loading ? (
-            <div className="flex h-64 items-center justify-center">
-              <p className="text-text-secondary">Loading delicious recipes...</p>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {Array.from({ length: 8 }, (_, index) => (
+                <RecipeCardSkeleton key={index} />
+              ))}
             </div>
           ) : recipes.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
