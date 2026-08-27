@@ -1,6 +1,6 @@
 package com.yummiee.controller;
 
-import com.yummiee.dto.RecipeDTO;
+import com.yummiee.dto.*;
 import com.yummiee.service.RecipeService;
 import com.yummiee.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,6 +38,23 @@ public class RecipeController {
         return ResponseEntity.ok(recipes);
     }
 
+    @GetMapping("/suggestion")
+    public ResponseEntity<RecipeSuggestionDTO> getRecipeSuggestion(
+            @RequestParam(required = false) String mealPeriod,
+            @RequestParam(required = false) Long excludeId,
+            @RequestParam(required = false) Integer hour) {
+        return recipeService.getRecipeSuggestion(mealPeriod, excludeId, hour)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/match")
+    public ResponseEntity<List<IngredientMatchResultDTO>> matchRecipes(
+            @RequestBody IngredientMatchRequest request) {
+        List<IngredientMatchResultDTO> matches = recipeService.matchRecipesByIngredients(request);
+        return ResponseEntity.ok(matches);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getRecipeById(@PathVariable Long id) {
         return recipeService.getRecipeById(id)
@@ -53,15 +70,17 @@ public class RecipeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateRecipe(@PathVariable Long id, @RequestBody RecipeDTO recipeDTO) {
-        return recipeService.updateRecipe(id, recipeDTO)
+    public ResponseEntity<?> updateRecipe(@PathVariable Long id, @RequestBody RecipeDTO recipeDTO, HttpServletRequest request) {
+        Long userId = userService.getOrCreateUserId(request);
+        return recipeService.updateRecipe(id, recipeDTO, userId)
                 .<ResponseEntity<?>>map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Recipe not found"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRecipe(@PathVariable Long id) {
-        boolean deleted = recipeService.deleteRecipe(id);
+    public ResponseEntity<Void> deleteRecipe(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = userService.getOrCreateUserId(request);
+        boolean deleted = recipeService.deleteRecipe(id, userId);
         if (deleted) {
             return ResponseEntity.noContent().build();
         } else {

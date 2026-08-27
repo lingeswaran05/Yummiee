@@ -4,7 +4,9 @@ import com.yummiee.model.User;
 import com.yummiee.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
@@ -15,13 +17,7 @@ public class UserService {
     public Long getOrCreateUserId(HttpServletRequest request) {
         String clerkUserId = request.getHeader("x-clerk-user-id");
         if (clerkUserId == null || clerkUserId.trim().isEmpty()) {
-            String authHeader = request.getHeader("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                clerkUserId = authHeader.substring(7);
-            }
-        }
-        if (clerkUserId == null || clerkUserId.trim().isEmpty()) {
-            clerkUserId = "mock_clerk_user_1";
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "A signed-in user is required");
         }
 
         final String finalClerkUserId = clerkUserId;
