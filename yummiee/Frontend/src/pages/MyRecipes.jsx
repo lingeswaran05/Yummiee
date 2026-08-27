@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Plus, Edit, Trash2, Eye, ChefHat, AlertCircle, Clock, Users, AlertTriangle, X } from "lucide-react";
 import MainLayout from "../layouts/MainLayout";
+import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
 import { fetchMyRecipes, deleteRecipe } from "../services/api";
+import { formatTime } from "../utils/formatTime";
 
 const CATEGORIES = ["All", "Breakfast", "Lunch", "Dinner", "Dessert", "Snacks", "Vegetarian"];
 
@@ -103,11 +105,12 @@ function MyRecipes() {
           })}
         </div>
 
-        {/* Loading State */}
+        {/* Loading State - Skeleton Cards */}
         {loading && (
-          <div className="flex min-h-[300px] flex-col items-center justify-center gap-3">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            <p className="text-sm font-semibold text-text-secondary">Loading your recipes...</p>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <RecipeCardSkeleton key={idx} />
+            ))}
           </div>
         )}
 
@@ -177,6 +180,7 @@ function MyRecipes() {
                   <img
                     src={recipe.image || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800"}
                     alt={recipe.name}
+                    loading="lazy"
                     className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                   />
                   <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-primary backdrop-blur-md shadow-sm">
@@ -197,7 +201,7 @@ function MyRecipes() {
                     <div className="mt-4 flex items-center gap-4 text-xs font-semibold text-text-secondary">
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4 text-primary" />
-                        <span>{recipe.time} mins</span>
+                        <span>{formatTime(recipe.time)}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Users className="h-4 w-4 text-primary" />

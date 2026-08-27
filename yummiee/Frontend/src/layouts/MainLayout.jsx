@@ -5,6 +5,7 @@ import {
   Plus,
   ShoppingCart,
   UserRound,
+  Utensils,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -20,11 +21,27 @@ function MainLayout({ children }) {
   const { signOut } = useClerk();
   const { user } = useUser();
 
+  const handleLogout = async () => {
+    setProfileOpen(false);
+    try {
+      await signOut();
+    } catch (err) {
+      console.warn("Clerk signout completed with notice:", err);
+    }
+    // Automatically redirect/reload to bringing user cleanly back to login page
+    window.location.href = window.location.origin + window.location.pathname + "#/";
+  };
+
   const mobileItems = [
     {
       name: "Home",
       path: "/dashboard",
       icon: Home,
+    },
+    {
+      name: "Cook",
+      path: "/what-can-i-cook",
+      icon: Utensils,
     },
     {
       name: "My Recipes",
@@ -45,7 +62,6 @@ function MainLayout({ children }) {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
-
       {/* Desktop Sidebar */}
       <Sidebar />
 
@@ -56,7 +72,6 @@ function MainLayout({ children }) {
 
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 flex border-t border-[#e4e2e1] bg-white/95 px-2 py-2 backdrop-blur-md md:hidden">
-
         {mobileItems.map((item) => {
           const Icon = item.icon;
 
@@ -73,7 +88,6 @@ function MainLayout({ children }) {
               }
             >
               <Icon className="h-5 w-5" />
-
               <span>{item.name}</span>
             </NavLink>
           );
@@ -88,7 +102,6 @@ function MainLayout({ children }) {
           <UserRound className="h-5 w-5" />
           <span>Profile</span>
         </button>
-
       </nav>
 
       {profileOpen && (
@@ -114,7 +127,7 @@ function MainLayout({ children }) {
               </div>
               <button
                 type="button"
-                onClick={() => signOut({ redirectUrl: "/#/?signed_out=1" })}
+                onClick={handleLogout}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-semibold text-white"
               >
                 <LogOut className="h-4 w-4" />

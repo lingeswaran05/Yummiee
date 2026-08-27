@@ -90,6 +90,23 @@ export async function fetchRecipeById(id) {
   return request(`/recipes/${id}`);
 }
 
+export async function fetchRecipeSuggestion(params = {}) {
+  const query = new URLSearchParams();
+  if (params.mealPeriod) query.append("mealPeriod", params.mealPeriod);
+  if (params.excludeId) query.append("excludeId", params.excludeId);
+  if (params.hour !== undefined && params.hour !== null) query.append("hour", params.hour);
+
+  const queryString = query.toString() ? `?${query.toString()}` : "";
+  return request(`/recipes/suggestion${queryString}`);
+}
+
+export async function matchRecipes(matchRequest) {
+  return request("/recipes/match", {
+    method: "POST",
+    body: JSON.stringify(matchRequest),
+  });
+}
+
 export async function createRecipe(recipeData) {
   return request("/recipes", {
     method: "POST",

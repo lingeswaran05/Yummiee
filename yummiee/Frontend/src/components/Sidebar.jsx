@@ -6,6 +6,7 @@ import {
   ChefHat,
   LogIn,
   UserPlus,
+  Utensils,
 } from "lucide-react";
 import {
   Show,
@@ -25,6 +26,11 @@ function Sidebar() {
       name: "Dashboard",
       path: "/dashboard",
       icon: LayoutDashboard,
+    },
+    {
+      name: "What Can I Cook?",
+      path: "/what-can-i-cook",
+      icon: Utensils,
     },
     {
       name: "My Recipes",
@@ -88,7 +94,7 @@ function Sidebar() {
       <div className="border-t border-[#e4e2e1] p-6">
         <Show when="signed-in">
           <div className="flex items-center gap-3 rounded-xl bg-[#faf8f7] p-3 border border-[#e4e2e1]">
-            <UserButton />
+            <UserButton afterSignOutUrl={window.location.origin + window.location.pathname + "#/"} />
             <div className="flex flex-col overflow-hidden">
               <span className="truncate text-sm font-semibold text-text-primary">
                 {user?.fullName || user?.firstName || "My Profile"}

@@ -25,6 +25,8 @@ function AddRecipe() {
     image: "",
   });
 
+  const [timeUnit, setTimeUnit] = useState("min");
+
   const [ingredients, setIngredients] = useState([
     {
       id: Date.now(),
@@ -48,6 +50,19 @@ function AddRecipe() {
       ...current,
       [field]: value,
     }));
+  };
+
+  const handleTimeUnitChange = (newUnit) => {
+    if (newUnit === timeUnit) return;
+    const currentVal = Number(recipe.time);
+    if (newUnit === "hr" && currentVal > 0) {
+      const converted = Number((currentVal / 60).toFixed(2));
+      updateRecipe("time", converted);
+    } else if (newUnit === "min" && currentVal > 0) {
+      const converted = Math.round(currentVal * 60);
+      updateRecipe("time", converted);
+    }
+    setTimeUnit(newUnit);
   };
 
   const addIngredient = () => {
@@ -115,11 +130,14 @@ function AddRecipe() {
     setSubmitting(true);
 
     try {
+      const rawTime = Number(recipe.time) || 0;
+      const totalMinutes = timeUnit === "hr" ? Math.round(rawTime * 60) : Math.round(rawTime);
+
       const payload = {
         name: recipe.name,
         description: recipe.description,
         category: recipe.category,
-        time: Number(recipe.time),
+        time: totalMinutes,
         difficulty: recipe.difficulty,
         servings: Number(recipe.servings),
         image: recipe.image || imagePreview || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800",
@@ -218,19 +236,25 @@ function AddRecipe() {
 
               <div>
                 <label className="mb-2 block text-sm font-semibold">Cooking Time</label>
-                <div className="relative">
+                <div className="flex h-14 w-full rounded-xl border border-border bg-white overflow-hidden focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10">
                   <input
                     type="number"
-                    min="1"
+                    min="0.1"
+                    step="any"
                     required
                     value={recipe.time}
                     onChange={(e) => updateRecipe("time", e.target.value)}
-                    placeholder="30"
-                    className="h-14 w-full rounded-xl border border-border bg-white px-4 pr-16 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                    placeholder={timeUnit === "hr" ? "0.5" : "30"}
+                    className="h-full min-w-0 flex-1 px-4 outline-none bg-transparent text-text-primary"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-text-secondary">
-                    min
-                  </span>
+                  <select
+                    value={timeUnit}
+                    onChange={(e) => handleTimeUnitChange(e.target.value)}
+                    className="h-full border-l border-border bg-[#faf8f7] px-3 text-sm font-semibold text-text-secondary outline-none cursor-pointer hover:bg-[#f3efed] transition"
+                  >
+                    <option value="min">min (Minutes)</option>
+                    <option value="hr">hr (Hours)</option>
+                  </select>
                 </div>
               </div>
 
@@ -275,6 +299,7 @@ function AddRecipe() {
                 <img
                   src={imagePreview}
                   alt="Recipe preview"
+                  loading="lazy"
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               ) : (

@@ -1,6 +1,6 @@
 package com.yummiee.controller;
 
-import com.yummiee.dto.RecipeDTO;
+import com.yummiee.dto.*;
 import com.yummiee.service.RecipeService;
 import com.yummiee.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +36,23 @@ public class RecipeController {
         Long userId = userService.getOrCreateUserId(request);
         List<RecipeDTO> recipes = recipeService.getMyRecipes(userId);
         return ResponseEntity.ok(recipes);
+    }
+
+    @GetMapping("/suggestion")
+    public ResponseEntity<RecipeSuggestionDTO> getRecipeSuggestion(
+            @RequestParam(required = false) String mealPeriod,
+            @RequestParam(required = false) Long excludeId,
+            @RequestParam(required = false) Integer hour) {
+        return recipeService.getRecipeSuggestion(mealPeriod, excludeId, hour)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/match")
+    public ResponseEntity<List<IngredientMatchResultDTO>> matchRecipes(
+            @RequestBody IngredientMatchRequest request) {
+        List<IngredientMatchResultDTO> matches = recipeService.matchRecipesByIngredients(request);
+        return ResponseEntity.ok(matches);
     }
 
     @GetMapping("/{id}")

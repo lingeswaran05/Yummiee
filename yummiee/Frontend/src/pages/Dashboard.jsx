@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X, Dices } from "lucide-react";
 
 import MainLayout from "../layouts/MainLayout";
 import RecipeCard from "../components/RecipeCard";
 import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
-import { fetchRecipes } from "../services/api";
+import SurpriseMeModal from "../components/SurpriseMeModal";
+import { fetchRecipes, fetchRecipeSuggestion } from "../services/api";
 
 function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,6 +13,11 @@ function Dashboard() {
   const [sortOption, setSortOption] = useState("Recently Added");
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Surprise Me Modal state
+  const [isSurpriseOpen, setIsSurpriseOpen] = useState(false);
+  const [suggestionData, setSuggestionData] = useState(null);
+  const [loadingSuggestion, setLoadingSuggestion] = useState(false);
 
   const categories = [
     "All",
@@ -53,6 +59,32 @@ function Dashboard() {
     };
   }, [searchTerm, selectedCategory, sortOption]);
 
+  const loadSurpriseSuggestion = async (excludeId = null) => {
+    setLoadingSuggestion(true);
+    try {
+      const currentHour = new Date().getHours();
+      const data = await fetchRecipeSuggestion({
+        excludeId,
+        hour: currentHour,
+      });
+      setSuggestionData(data);
+    } catch (err) {
+      console.error("Error fetching surprise suggestion:", err);
+    } finally {
+      setLoadingSuggestion(false);
+    }
+  };
+
+  const handleOpenSurpriseModal = () => {
+    setIsSurpriseOpen(true);
+    loadSurpriseSuggestion(null);
+  };
+
+  const handleTryAgainSurprise = () => {
+    const currentId = suggestionData?.recipe?.id || null;
+    loadSurpriseSuggestion(currentId);
+  };
+
   const clearSearch = () => {
     setSearchTerm("");
   };
@@ -77,7 +109,7 @@ function Dashboard() {
             </p>
           </div>
 
-          {/* Search */}
+          {/* Search & Surprise Me Button */}
           <div className="flex w-full gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-text-secondary" />
@@ -101,6 +133,17 @@ function Dashboard() {
               )}
             </div>
 
+            {/* Surprise Me Button */}
+            <button
+              type="button"
+              onClick={handleOpenSurpriseModal}
+              className="flex h-14 shrink-0 items-center justify-center gap-2 rounded-xl border border-[#e4e2e1] bg-white px-4 text-sm font-bold text-text-primary shadow-sm transition hover:border-primary hover:text-primary"
+            >
+              <Dices className="h-5 w-5 text-primary" />
+              <span className="hidden sm:inline">Surprise Me</span>
+            </button>
+
+            {/* Filter Scroll Button */}
             <button
               type="button"
               onClick={() =>
@@ -238,6 +281,15 @@ function Dashboard() {
           )}
         </section>
       </main>
+
+      {/* Surprise Me Modal */}
+      <SurpriseMeModal
+        isOpen={isSurpriseOpen}
+        onClose={() => setIsSurpriseOpen(false)}
+        suggestionData={suggestionData}
+        onTryAgain={handleTryAgainSurprise}
+        loading={loadingSuggestion}
+      />
     </MainLayout>
   );
 }

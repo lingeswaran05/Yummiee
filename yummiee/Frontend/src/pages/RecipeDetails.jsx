@@ -13,9 +13,11 @@ import {
 import { Link, useParams } from "react-router-dom";
 
 import MainLayout from "../layouts/MainLayout";
+import RecipeDetailsSkeleton from "../components/RecipeDetailsSkeleton";
 import { fetchRecipeById } from "../services/api";
 import { useWishlist } from "../context/WishlistContext";
 import { useShoppingList } from "../context/ShoppingListContext";
+import { formatTime } from "../utils/formatTime";
 
 function RecipeDetails() {
   const { id } = useParams();
@@ -55,13 +57,7 @@ function RecipeDetails() {
   }, [id]);
 
   if (loading) {
-    return (
-      <MainLayout>
-        <div className="flex min-h-screen items-center justify-center px-5">
-          <p className="text-text-secondary">Loading recipe details...</p>
-        </div>
-      </MainLayout>
-    );
+    return <RecipeDetailsSkeleton />;
   }
 
   if (!recipe) {
@@ -148,6 +144,7 @@ function RecipeDetails() {
             <img
               src={recipe.image || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800"}
               alt={recipe.name}
+              loading="lazy"
               className="h-[360px] w-full object-cover sm:h-[460px]"
             />
 
@@ -192,7 +189,7 @@ function RecipeDetails() {
                 <Clock className="h-5 w-5 text-primary" />
                 <div>
                   <p className="text-xs text-text-secondary">Time</p>
-                  <p className="font-semibold">{recipe.time} min</p>
+                  <p className="font-semibold">{formatTime(recipe.time)}</p>
                 </div>
               </div>
 
