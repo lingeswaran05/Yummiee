@@ -1,6 +1,6 @@
-export function normalizeIngredient(raw: string | null | undefined): string {
+export function normalizeIngredient(raw) {
   if (!raw) return "";
-  let s = raw.trim().toLowerCase();
+  let s = String(raw).trim().toLowerCase();
   s = s.replace(/[^a-z0-9\s]/g, "");
   s = s.replace(/\s+/g, " ").trim();
 
@@ -28,7 +28,7 @@ export function normalizeIngredient(raw: string | null | undefined): string {
   return s;
 }
 
-export function isIngredientMatched(normRecIng: string, userSet: Set<string>): boolean {
+export function isIngredientMatched(normRecIng, userSet) {
   if (!normRecIng) return false;
 
   for (const userIng of userSet) {

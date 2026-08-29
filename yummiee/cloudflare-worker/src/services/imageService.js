@@ -1,19 +1,5 @@
-export interface UploadResult {
-  key: string;
-  url: string;
-  contentType: string;
-  size: number;
-}
-
-export async function uploadImage(
-  r2: R2Bucket,
-  db: D1Database,
-  data: ArrayBuffer | Uint8Array | ReadableStream,
-  contentType: string,
-  originalName: string,
-  userId: number
-): Promise<UploadResult> {
-  const ext = originalName.includes(".") ? originalName.split(".").pop()?.toLowerCase() || "jpg" : "jpg";
+export async function uploadImage(r2, db, data, contentType, originalName, userId) {
+  const ext = originalName.includes(".") ? originalName.split(".").pop().toLowerCase() || "jpg" : "jpg";
   const safeName = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
   const key = `recipes/${userId}/${safeName}`;
 
@@ -49,23 +35,17 @@ export async function uploadImage(
   };
 }
 
-export async function getImage(r2: R2Bucket, key: string): Promise<R2ObjectBody | null> {
+export async function getImage(r2, key) {
   return await r2.get(key);
 }
 
-export async function deleteImage(
-  r2: R2Bucket,
-  db: D1Database,
-  key: string,
-  userId: number
-): Promise<boolean> {
+export async function deleteImage(r2, db, key, userId) {
   const asset = await db
     .prepare("SELECT * FROM image_assets WHERE key = ? AND user_id = ?")
     .bind(key, userId)
     .first();
 
   if (!asset) {
-    // User is not the owner or asset does not exist
     return false;
   }
 

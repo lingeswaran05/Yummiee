@@ -1,9 +1,8 @@
 import { Hono } from "hono";
-import { Env, Variables, ShoppingListItemDTO } from "../types";
-import { requireAuth } from "../auth/clerk";
-import * as shoppingListService from "../services/shoppingListService";
+import { requireAuth } from "../auth/clerk.js";
+import * as shoppingListService from "../services/shoppingListService.js";
 
-export const shoppingListRouter = new Hono<{ Bindings: Env; Variables: Variables }>();
+export const shoppingListRouter = new Hono();
 
 // GET /api/shopping-list (Protected - Returns only authenticated user's shopping list)
 shoppingListRouter.get("/", requireAuth, async (c) => {
@@ -15,7 +14,7 @@ shoppingListRouter.get("/", requireAuth, async (c) => {
 // POST /api/shopping-list (Protected - Adds item for authenticated user)
 shoppingListRouter.post("/", requireAuth, async (c) => {
   const userId = c.get("userId");
-  const body = await c.req.json<ShoppingListItemDTO>().catch(() => null);
+  const body = await c.req.json().catch(() => null);
 
   if (!body || !body.name || typeof body.name !== "string" || !body.name.trim()) {
     return c.json({ message: "Item name is required" }, 400);
@@ -37,7 +36,7 @@ shoppingListRouter.put("/:id", requireAuth, async (c) => {
     return c.text("Item not found", 404);
   }
 
-  const body = await c.req.json<ShoppingListItemDTO>().catch(() => null);
+  const body = await c.req.json().catch(() => null);
   if (!body) {
     return c.json({ message: "Invalid request payload" }, 400);
   }

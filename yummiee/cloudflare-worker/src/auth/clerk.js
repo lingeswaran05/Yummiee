@@ -1,21 +1,12 @@
-import { Context, Next } from "hono";
-import { Env, Variables, UserRecord } from "../types";
-import { jwtVerify, createRemoteJWKSet, createLocalJWKSet, JWTPayload } from "jose";
+import { jwtVerify, createRemoteJWKSet } from "jose";
 
-// In-memory cache for remote JWKS sets to avoid re-fetching on every request
-const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
-
-export interface VerifiedClerkUser {
-  clerkUserId: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-}
+// In-memory cache for remote JWKS sets
+const jwksCache = new Map();
 
 /**
  * Derives the Clerk JWKS URL from environment bindings.
  */
-function getClerkJwksUrl(env: Env): string | null {
+function getClerkJwksUrl(env) {
   if (env.CLERK_JWKS_URL) {
     return env.CLERK_JWKS_URL;
   }
@@ -26,7 +17,6 @@ function getClerkJwksUrl(env: Env): string | null {
   }
 
   if (env.CLERK_PUBLISHABLE_KEY) {
-    // Clerk publishable keys format: pk_test_<base64_domain>$ or pk_live_<base64_domain>$
     try {
       const parts = env.CLERK_PUBLISHABLE_KEY.split("_");
       if (parts.length >= 3) {
@@ -37,63 +27,62 @@ function getClerkJwksUrl(env: Env): string | null {
         }
       }
     } catch {
-      // ignore base64 decode errors
+      // ignore decode error
     }
   }
 
-  return null;
+  return "https://measured-honeybee-7159.clerk.accounts.dev/.well-known/jwks.json";
 }
 
 /**
  * Cryptographically verifies a Clerk session JWT.
  */
-export async function verifyClerkToken(
-  token: string,
-  env: Env
-): Promise<VerifiedClerkUser | null> {
+export async function verifyClerkToken(token, env) {
   if (!token || typeof token !== "string") return null;
 
   try {
-    let payload: JWTPayload;
+    let payload;
 
-    // 1. If explicit JWT public key / secret key is provided
+    // 1. If explicit JWT secret/key is provided (for testing or symmetric key)
     if (env.CLERK_JWT_KEY) {
       const keyBuffer = new TextEncoder().encode(env.CLERK_JWT_KEY);
       const res = await jwtVerify(token, keyBuffer);
       payload = res.payload;
-    } else if (env.CLERK_SECRET_KEY && env.CLERK_SECRET_KEY.startsWith("test_secret_")) {
-      // Local / test suite cryptographic HMAC verification
+    } else if (env.CLERK_SECRET_KEY) {
+      // Cryptographic verification with Clerk Secret Key
       const keyBuffer = new TextEncoder().encode(env.CLERK_SECRET_KEY);
-      const res = await jwtVerify(token, keyBuffer);
-      payload = res.payload;
-    } else {
-      // 2. Standard Clerk JWKS verification
-      const jwksUrl = getClerkJwksUrl(env);
-      if (!jwksUrl) {
-        // In local development if no Clerk keys are configured, attempt secret verification
-        if (env.CLERK_SECRET_KEY) {
-          const keyBuffer = new TextEncoder().encode(env.CLERK_SECRET_KEY);
-          const res = await jwtVerify(token, keyBuffer);
-          payload = res.payload;
-        } else {
-          console.error("Clerk configuration error: No CLERK_ISSUER, CLERK_PUBLISHABLE_KEY, or CLERK_SECRET_KEY provided.");
-          return null;
-        }
-      } else {
+      try {
+        const res = await jwtVerify(token, keyBuffer);
+        payload = res.payload;
+      } catch (secErr) {
+        // Fallback to JWKS if token was RS256 signed by Clerk
+        const jwksUrl = getClerkJwksUrl(env);
         let jwks = jwksCache.get(jwksUrl);
         if (!jwks) {
           jwks = createRemoteJWKSet(new URL(jwksUrl));
           jwksCache.set(jwksUrl, jwks);
         }
-
-        const verifyOptions: any = {};
-        if (env.CLERK_ISSUER) {
-          verifyOptions.issuer = env.CLERK_ISSUER;
-        }
-
+        const verifyOptions = {};
+        if (env.CLERK_ISSUER) verifyOptions.issuer = env.CLERK_ISSUER;
         const res = await jwtVerify(token, jwks, verifyOptions);
         payload = res.payload;
       }
+    } else {
+      // 2. Standard Clerk JWKS verification
+      const jwksUrl = getClerkJwksUrl(env);
+      let jwks = jwksCache.get(jwksUrl);
+      if (!jwks) {
+        jwks = createRemoteJWKSet(new URL(jwksUrl));
+        jwksCache.set(jwksUrl, jwks);
+      }
+
+      const verifyOptions = {};
+      if (env.CLERK_ISSUER) {
+        verifyOptions.issuer = env.CLERK_ISSUER;
+      }
+
+      const res = await jwtVerify(token, jwks, verifyOptions);
+      payload = res.payload;
     }
 
     if (!payload || !payload.sub) {
@@ -102,12 +91,12 @@ export async function verifyClerkToken(
 
     const clerkUserId = payload.sub;
     const email =
-      (payload.email as string) ||
-      (payload.primary_email_address as string) ||
+      payload.email ||
+      payload.primary_email_address ||
       `${clerkUserId}@yummiee.com`;
 
-    const firstName = (payload.first_name as string) || (payload.given_name as string) || "User";
-    const lastName = (payload.last_name as string) || (payload.family_name as string) || "";
+    const firstName = payload.first_name || payload.given_name || "User";
+    const lastName = payload.last_name || payload.family_name || "";
 
     return {
       clerkUserId,
@@ -115,8 +104,8 @@ export async function verifyClerkToken(
       firstName,
       lastName,
     };
-  } catch (err: any) {
-    // JWT verification failed (invalid signature, expired, malformed, etc.)
+  } catch (err) {
+    // JWT verification failed
     return null;
   }
 }
@@ -124,14 +113,11 @@ export async function verifyClerkToken(
 /**
  * Gets or creates the database user record for the given verified Clerk user.
  */
-export async function getOrCreateUser(
-  db: D1Database,
-  verifiedUser: VerifiedClerkUser
-): Promise<UserRecord> {
+export async function getOrCreateUser(db, verifiedUser) {
   const existing = await db
     .prepare("SELECT * FROM users WHERE clerk_user_id = ?")
     .bind(verifiedUser.clerkUserId)
-    .first<UserRecord>();
+    .first();
 
   if (existing) {
     return existing;
@@ -148,7 +134,7 @@ export async function getOrCreateUser(
       verifiedUser.firstName || "User",
       verifiedUser.lastName || ""
     )
-    .first<UserRecord>();
+    .first();
 
   if (result) {
     return result;
@@ -157,7 +143,7 @@ export async function getOrCreateUser(
   const inserted = await db
     .prepare("SELECT * FROM users WHERE clerk_user_id = ?")
     .bind(verifiedUser.clerkUserId)
-    .first<UserRecord>();
+    .first();
 
   if (!inserted) {
     throw new Error("Failed to create application user record");
@@ -169,9 +155,7 @@ export async function getOrCreateUser(
 /**
  * Extracts and verifies token from the request.
  */
-async function authenticateRequest(
-  c: Context<{ Bindings: Env; Variables: Variables }>
-): Promise<VerifiedClerkUser | null> {
+async function authenticateRequest(c) {
   const authHeader = c.req.header("Authorization") || c.req.header("authorization");
   if (authHeader && authHeader.startsWith("Bearer ")) {
     const token = authHeader.substring(7).trim();
@@ -184,10 +168,7 @@ async function authenticateRequest(
 /**
  * Hono middleware requiring cryptographic authentication.
  */
-export async function requireAuth(
-  c: Context<{ Bindings: Env; Variables: Variables }>,
-  next: Next
-) {
+export async function requireAuth(c, next) {
   const verifiedUser = await authenticateRequest(c);
   if (!verifiedUser) {
     return c.json({ message: "A valid signed-in user session is required" }, 401);
@@ -198,7 +179,7 @@ export async function requireAuth(
     c.set("userId", user.id);
     c.set("clerkUserId", verifiedUser.clerkUserId);
     await next();
-  } catch (err: any) {
+  } catch (err) {
     console.error("Auth DB synchronization error:", err);
     return c.json({ message: "Authentication database error" }, 500);
   }
@@ -207,10 +188,7 @@ export async function requireAuth(
 /**
  * Hono middleware for optional authentication.
  */
-export async function optionalAuth(
-  c: Context<{ Bindings: Env; Variables: Variables }>,
-  next: Next
-) {
+export async function optionalAuth(c, next) {
   const verifiedUser = await authenticateRequest(c);
   if (verifiedUser) {
     try {

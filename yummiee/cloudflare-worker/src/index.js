@@ -1,35 +1,20 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { Env, Variables } from "./types";
-import { healthRouter } from "./routes/health";
-import { recipesRouter } from "./routes/recipes";
-import { wishlistRouter } from "./routes/wishlist";
-import { shoppingListRouter } from "./routes/shoppingList";
-import { imagesRouter } from "./routes/images";
+import { healthRouter } from "./routes/health.js";
+import { recipesRouter } from "./routes/recipes.js";
+import { wishlistRouter } from "./routes/wishlist.js";
+import { shoppingListRouter } from "./routes/shoppingList.js";
+import { imagesRouter } from "./routes/images.js";
 
-const app = new Hono<{ Bindings: Env; Variables: Variables }>();
+const app = new Hono();
 
-// Production-safe CORS configuration
-app.use("*", async (c, next) => {
-  const allowedOriginEnv = c.env.ALLOWED_ORIGIN || "*";
-  const allowedList = allowedOriginEnv.split(",").map((o) => o.trim());
-
-  const corsMiddleware = cors({
+// CORS configuration
+app.use(
+  "*",
+  cors({
     origin: (origin) => {
-      if (!origin) return "*";
-      if (allowedOriginEnv === "*") return origin;
-      if (allowedList.includes(origin) || allowedList.includes("*")) {
-        return origin;
-      }
-      // Allow localhost and local IP ranges during development
-      if (
-        origin.startsWith("http://localhost:") ||
-        origin.startsWith("http://127.0.0.1:") ||
-        origin.endsWith(".pages.dev")
-      ) {
-        return origin;
-      }
-      return null;
+      // Return origin or wildcard
+      return origin || "*";
     },
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     allowHeaders: [
@@ -42,10 +27,8 @@ app.use("*", async (c, next) => {
     exposeHeaders: ["Content-Length", "Content-Type", "ETag"],
     maxAge: 86400,
     credentials: true,
-  });
-
-  return corsMiddleware(c, next);
-});
+  })
+);
 
 // Global Error Handler
 app.onError((err, c) => {

@@ -1,9 +1,8 @@
 import { Hono } from "hono";
-import { Env, Variables } from "../types";
-import { requireAuth } from "../auth/clerk";
-import * as wishlistService from "../services/wishlistService";
+import { requireAuth } from "../auth/clerk.js";
+import * as wishlistService from "../services/wishlistService.js";
 
-export const wishlistRouter = new Hono<{ Bindings: Env; Variables: Variables }>();
+export const wishlistRouter = new Hono();
 
 // GET /api/wishlist (Protected - Returns only authenticated user's wishlist)
 wishlistRouter.get("/", requireAuth, async (c) => {

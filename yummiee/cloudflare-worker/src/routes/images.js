@@ -1,11 +1,9 @@
 import { Hono } from "hono";
-import { Env, Variables } from "../types";
-import { requireAuth } from "../auth/clerk";
-import * as imageService from "../services/imageService";
+import { requireAuth } from "../auth/clerk.js";
+import * as imageService from "../services/imageService.js";
 
-export const imagesRouter = new Hono<{ Bindings: Env; Variables: Variables }>();
+export const imagesRouter = new Hono();
 
-// Exclude SVG to prevent script injection vulnerabilities
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
@@ -24,7 +22,7 @@ imagesRouter.post("/upload", requireAuth, async (c) => {
   try {
     if (contentTypeHeader.includes("multipart/form-data")) {
       const formData = await c.req.formData();
-      const file = formData.get("file") as File | null;
+      const file = formData.get("file");
 
       if (!file) {
         return c.json({ message: "No file uploaded" }, 400);
@@ -52,7 +50,7 @@ imagesRouter.post("/upload", requireAuth, async (c) => {
     }
 
     // JSON base64 upload
-    const body = await c.req.json<{ image?: string; filename?: string; contentType?: string }>().catch(() => null);
+    const body = await c.req.json().catch(() => null);
     if (!body || !body.image) {
       return c.json({ message: "Invalid payload. Provide multipart form or { image: base64 }" }, 400);
     }
@@ -72,8 +70,7 @@ imagesRouter.post("/upload", requireAuth, async (c) => {
       return c.json({ message: "Invalid image type: " + mimeType }, 400);
     }
 
-    // Convert base64 to Uint8Array safely
-    let bytes: Uint8Array;
+    let bytes;
     try {
       const binaryStr = atob(base64Data);
       bytes = new Uint8Array(binaryStr.length);
@@ -99,7 +96,7 @@ imagesRouter.post("/upload", requireAuth, async (c) => {
     );
 
     return c.json(result, 201);
-  } catch (err: any) {
+  } catch (err) {
     console.error("Upload error:", err);
     return c.json({ message: "Failed to upload image" }, 500);
   }
@@ -128,7 +125,7 @@ imagesRouter.get("/*", async (c) => {
       headers,
       status: 200,
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Image retrieval error:", err);
     return c.text("Error retrieving image", 500);
   }

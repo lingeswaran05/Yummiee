@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "yummiee-api",
-  "main": "src/index.ts",
+  "main": "src/index.js",
   "compatibility_date": "2025-02-24",
   "observability": {
     "enabled": true
@@ -22,6 +22,9 @@
   ],
   "vars": {
     "ALLOWED_ORIGIN": "*",
-    "CLERK_SECRET_KEY": "test_secret_for_local_dev_only_change_in_prod"
+    "CLERK_PUBLISHABLE_KEY": "pk_test_bWVhc3VyZWQtaG9uZXliZWUtNzE1OS5jbGVyay5hY2NvdW50cy5kZXYk",
+    "CLERK_SECRET_KEY": "sk_test_6J2FUzslNxIsLKrgSJR5oE0VYP0AB5ulONkH0vF6jt",
+    "CLERK_ISSUER": "https://measured-honeybee-7159.clerk.accounts.dev",
+    "CLERK_JWKS_URL": "https://measured-honeybee-7159.clerk.accounts.dev/.well-known/jwks.json"
   }
 }

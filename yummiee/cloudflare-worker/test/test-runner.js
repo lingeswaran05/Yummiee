@@ -2,7 +2,7 @@
 import { SignJWT } from "jose";
 
 const BASE_URL = "http://127.0.0.1:8787";
-const TEST_SECRET = new TextEncoder().encode("test_secret_for_local_dev_only_change_in_prod");
+const TEST_SECRET = new TextEncoder().encode("sk_test_6J2FUzslNxIsLKrgSJR5oE0VYP0AB5ulONkH0vF6jt");
 
 /**
  * Creates a cryptographically signed JWT for a given Clerk user identity.

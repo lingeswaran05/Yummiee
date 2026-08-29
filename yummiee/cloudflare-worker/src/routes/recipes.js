@@ -1,9 +1,8 @@
 import { Hono } from "hono";
-import { Env, Variables, RecipeDTO, IngredientMatchRequest } from "../types";
-import { requireAuth } from "../auth/clerk";
-import * as recipeService from "../services/recipeService";
+import { requireAuth } from "../auth/clerk.js";
+import * as recipeService from "../services/recipeService.js";
 
-export const recipesRouter = new Hono<{ Bindings: Env; Variables: Variables }>();
+export const recipesRouter = new Hono();
 
 // GET /api/recipes
 recipesRouter.get("/", async (c) => {
@@ -35,7 +34,7 @@ recipesRouter.get("/suggestion", async (c) => {
     c.env.DB,
     mealPeriod,
     excludeId && excludeId > 0 ? excludeId : null,
-    isNaN(hour as any) ? null : hour
+    isNaN(hour) ? null : hour
   );
 
   if (!suggestion) {
@@ -47,7 +46,7 @@ recipesRouter.get("/suggestion", async (c) => {
 
 // POST /api/recipes/match
 recipesRouter.post("/match", async (c) => {
-  const body = await c.req.json<IngredientMatchRequest>().catch(() => null);
+  const body = await c.req.json().catch(() => null);
   if (!body || !body.ingredients || !Array.isArray(body.ingredients)) {
     return c.json([], 200);
   }
@@ -74,7 +73,7 @@ recipesRouter.get("/:id", async (c) => {
 // POST /api/recipes (Protected - Creates recipe owned by authenticated user)
 recipesRouter.post("/", requireAuth, async (c) => {
   const userId = c.get("userId");
-  const body = await c.req.json<RecipeDTO>().catch(() => null);
+  const body = await c.req.json().catch(() => null);
 
   if (!body || !body.name || typeof body.name !== "string" || !body.name.trim()) {
     return c.json({ message: "Recipe name is required" }, 400);
@@ -96,7 +95,7 @@ recipesRouter.put("/:id", requireAuth, async (c) => {
     return c.text("Recipe not found", 404);
   }
 
-  const body = await c.req.json<RecipeDTO>().catch(() => null);
+  const body = await c.req.json().catch(() => null);
   if (!body) {
     return c.json({ message: "Invalid request payload" }, 400);
   }

@@ -1,61 +1,7 @@
-import {
-  RecipeDTO,
-  IngredientDTO,
-  InstructionDTO,
-  NutritionDTO,
-  RecipeSuggestionDTO,
-  IngredientMatchRequest,
-  IngredientMatchResultDTO,
-} from "../types";
-import { normalizeIngredient, isIngredientMatched } from "../utils/normalize";
+import { normalizeIngredient, isIngredientMatched } from "../utils/normalize.js";
 
-interface RecipeRow {
-  id: number;
-  user_id: number | null;
-  name: string;
-  description: string | null;
-  category: string | null;
-  time_minutes: number | null;
-  difficulty: string | null;
-  servings: number | null;
-  image_url: string | null;
-  rating: number | null;
-  review_count: number | null;
-  notes: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface IngredientRow {
-  id: number;
-  recipe_id: number;
-  name: string;
-  quantity: number | null;
-  unit: string | null;
-}
-
-interface InstructionRow {
-  id: number;
-  recipe_id: number;
-  step_number: number;
-  title: string | null;
-  description: string | null;
-}
-
-interface NutritionRow {
-  id: number;
-  recipe_id: number;
-  calories: number | null;
-  protein: number | null;
-  carbs: number | null;
-  fat: number | null;
-}
-
-export async function populateRecipeDetails(
-  db: D1Database,
-  recipeRows: RecipeRow[]
-): Promise<RecipeDTO[]> {
-  if (recipeRows.length === 0) return [];
+export async function populateRecipeDetails(db, recipeRows) {
+  if (!recipeRows || recipeRows.length === 0) return [];
 
   const recipeIds = recipeRows.map((r) => r.id);
   const placeholders = recipeIds.map(() => "?").join(",");
@@ -64,23 +10,23 @@ export async function populateRecipeDetails(
     db
       .prepare(`SELECT * FROM ingredients WHERE recipe_id IN (${placeholders}) ORDER BY id ASC`)
       .bind(...recipeIds)
-      .all<IngredientRow>(),
+      .all(),
     db
       .prepare(`SELECT * FROM instructions WHERE recipe_id IN (${placeholders}) ORDER BY step_number ASC, id ASC`)
       .bind(...recipeIds)
-      .all<InstructionRow>(),
+      .all(),
     db
       .prepare(`SELECT * FROM nutrition WHERE recipe_id IN (${placeholders})`)
       .bind(...recipeIds)
-      .all<NutritionRow>(),
+      .all(),
   ]);
 
-  const ingredientsByRecipe = new Map<number, IngredientDTO[]>();
+  const ingredientsByRecipe = new Map();
   for (const ing of ingredientsRes.results || []) {
     if (!ingredientsByRecipe.has(ing.recipe_id)) {
       ingredientsByRecipe.set(ing.recipe_id, []);
     }
-    ingredientsByRecipe.get(ing.recipe_id)!.push({
+    ingredientsByRecipe.get(ing.recipe_id).push({
       id: ing.id,
       name: ing.name,
       quantity: ing.quantity,
@@ -88,12 +34,12 @@ export async function populateRecipeDetails(
     });
   }
 
-  const instructionsByRecipe = new Map<number, InstructionDTO[]>();
+  const instructionsByRecipe = new Map();
   for (const inst of instructionsRes.results || []) {
     if (!instructionsByRecipe.has(inst.recipe_id)) {
       instructionsByRecipe.set(inst.recipe_id, []);
     }
-    instructionsByRecipe.get(inst.recipe_id)!.push({
+    instructionsByRecipe.get(inst.recipe_id).push({
       id: inst.id,
       step: inst.step_number,
       title: inst.title || `Step ${inst.step_number}`,
@@ -101,7 +47,7 @@ export async function populateRecipeDetails(
     });
   }
 
-  const nutritionByRecipe = new Map<number, NutritionDTO>();
+  const nutritionByRecipe = new Map();
   for (const nut of nutritionRes.results || []) {
     nutritionByRecipe.set(nut.recipe_id, {
       calories: nut.calories,
@@ -129,15 +75,9 @@ export async function populateRecipeDetails(
   }));
 }
 
-export async function getRecipes(
-  db: D1Database,
-  search?: string | null,
-  category?: string | null,
-  difficulty?: string | null,
-  sort?: string | null
-): Promise<RecipeDTO[]> {
+export async function getRecipes(db, search, category, difficulty, sort) {
   let query = "SELECT * FROM recipes WHERE 1=1";
-  const params: any[] = [];
+  const params = [];
 
   if (search && search.trim()) {
     query += " AND (LOWER(name) LIKE ? OR LOWER(description) LIKE ?)";
@@ -163,26 +103,26 @@ export async function getRecipes(
     query += " ORDER BY id DESC";
   }
 
-  const res = await db.prepare(query).bind(...params).all<RecipeRow>();
+  const res = await db.prepare(query).bind(...params).all();
   return populateRecipeDetails(db, res.results || []);
 }
 
-export async function getRecipeById(db: D1Database, id: number): Promise<RecipeDTO | null> {
-  const row = await db.prepare("SELECT * FROM recipes WHERE id = ?").bind(id).first<RecipeRow>();
+export async function getRecipeById(db, id) {
+  const row = await db.prepare("SELECT * FROM recipes WHERE id = ?").bind(id).first();
   if (!row) return null;
   const list = await populateRecipeDetails(db, [row]);
   return list[0] || null;
 }
 
-export async function getMyRecipes(db: D1Database, userId: number): Promise<RecipeDTO[]> {
+export async function getMyRecipes(db, userId) {
   const res = await db
     .prepare("SELECT * FROM recipes WHERE user_id = ? ORDER BY id DESC")
     .bind(userId)
-    .all<RecipeRow>();
+    .all();
   return populateRecipeDetails(db, res.results || []);
 }
 
-function getTitleForMealPeriod(mealPeriod: string | null): string {
+function getTitleForMealPeriod(mealPeriod) {
   if (!mealPeriod) return "Today's Suggestion";
   switch (mealPeriod.toLowerCase()) {
     case "breakfast":
@@ -201,7 +141,7 @@ function getTitleForMealPeriod(mealPeriod: string | null): string {
   }
 }
 
-function getFallbackCategories(mealPeriod: string | null): string[] {
+function getFallbackCategories(mealPeriod) {
   if (!mealPeriod) return ["Lunch", "Dinner", "Breakfast", "Snacks"];
   switch (mealPeriod.toLowerCase()) {
     case "breakfast":
@@ -220,13 +160,8 @@ function getFallbackCategories(mealPeriod: string | null): string[] {
   }
 }
 
-export async function getRecipeSuggestion(
-  db: D1Database,
-  clientMealPeriod?: string | null,
-  excludeId?: number | null,
-  clientHour?: number | null
-): Promise<RecipeSuggestionDTO | null> {
-  const allRecipesRes = await db.prepare("SELECT * FROM recipes").all<RecipeRow>();
+export async function getRecipeSuggestion(db, clientMealPeriod, excludeId, clientHour) {
+  const allRecipesRes = await db.prepare("SELECT * FROM recipes").all();
   const allRows = allRecipesRes.results || [];
   if (allRows.length === 0) return null;
 
@@ -237,8 +172,8 @@ export async function getRecipeSuggestion(
     hour = new Date().getUTCHours();
   }
 
-  let activePeriod: string;
-  let suggestionTitle: string;
+  let activePeriod;
+  let suggestionTitle;
 
   if (clientMealPeriod && clientMealPeriod.trim().length > 0) {
     activePeriod = clientMealPeriod.trim();
@@ -259,19 +194,17 @@ export async function getRecipeSuggestion(
     }
   }
 
-  const filterExcluded = (candidates: RecipeDTO[], excl: number | null | undefined): RecipeDTO[] => {
+  const filterExcluded = (candidates, excl) => {
     if (!excl) return candidates;
     const filtered = candidates.filter((r) => r.id !== excl);
     return filtered.length > 0 ? filtered : candidates;
   };
 
-  // Try 1: Exact meal period category match
   const primaryCandidates = allRecipes.filter(
     (r) => r.category && r.category.toLowerCase() === activePeriod.toLowerCase()
   );
   let eligibleCandidates = filterExcluded(primaryCandidates, excludeId);
 
-  // Try 2: Compatible fallbacks
   if (eligibleCandidates.length === 0) {
     const fallbacks = getFallbackCategories(activePeriod);
     for (const fbCategory of fallbacks) {
@@ -283,12 +216,10 @@ export async function getRecipeSuggestion(
     }
   }
 
-  // Try 3: Any recipe in database
   if (eligibleCandidates.length === 0) {
     eligibleCandidates = filterExcluded(allRecipes, excludeId);
   }
 
-  // Final fallback: allow excludeId if it's the absolute only recipe
   if (eligibleCandidates.length === 0) {
     eligibleCandidates = allRecipes;
   }
@@ -301,11 +232,8 @@ export async function getRecipeSuggestion(
   };
 }
 
-export async function matchRecipesByIngredients(
-  db: D1Database,
-  request: IngredientMatchRequest
-): Promise<IngredientMatchResultDTO[]> {
-  if (!request || !request.ingredients || request.ingredients.length === 0) {
+export async function matchRecipesByIngredients(db, request) {
+  if (!request || !request.ingredients || !Array.isArray(request.ingredients) || request.ingredients.length === 0) {
     return [];
   }
 
@@ -319,11 +247,11 @@ export async function matchRecipesByIngredients(
     return [];
   }
 
-  const allRows = await db.prepare("SELECT * FROM recipes").all<RecipeRow>();
+  const allRows = await db.prepare("SELECT * FROM recipes").all();
   const allRecipes = await populateRecipeDetails(db, allRows.results || []);
 
   const categoryFilter = request.category?.trim();
-  const results: IngredientMatchResultDTO[] = [];
+  const results = [];
 
   for (const recipe of allRecipes) {
     if (
@@ -340,7 +268,7 @@ export async function matchRecipesByIngredients(
     if (recipeIngredients.length === 0) continue;
 
     let matchedCount = 0;
-    const missingIngredients: string[] = [];
+    const missingIngredients = [];
 
     for (const ing of recipeIngredients) {
       const rawName = ing.name || "";
@@ -389,11 +317,7 @@ export async function matchRecipesByIngredients(
   return results;
 }
 
-export async function createRecipe(
-  db: D1Database,
-  dto: RecipeDTO,
-  userId: number
-): Promise<RecipeDTO> {
+export async function createRecipe(db, dto, userId) {
   const insertRecipe = await db
     .prepare(
       `INSERT INTO recipes (user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes, created_at, updated_at)
@@ -410,14 +334,14 @@ export async function createRecipe(
       dto.image && dto.image.trim() ? dto.image : "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800",
       dto.notes || ""
     )
-    .first<{ id: number }>();
+    .first();
 
   const recipeId = insertRecipe?.id;
   if (!recipeId) throw new Error("Failed to insert recipe");
 
-  const batchQueries: D1PreparedStatement[] = [];
+  const batchQueries = [];
 
-  if (dto.ingredients && dto.ingredients.length > 0) {
+  if (dto.ingredients && Array.isArray(dto.ingredients) && dto.ingredients.length > 0) {
     for (const ing of dto.ingredients) {
       batchQueries.push(
         db
@@ -427,7 +351,7 @@ export async function createRecipe(
     }
   }
 
-  if (dto.instructions && dto.instructions.length > 0) {
+  if (dto.instructions && Array.isArray(dto.instructions) && dto.instructions.length > 0) {
     for (let i = 0; i < dto.instructions.length; i++) {
       const inst = dto.instructions[i];
       batchQueries.push(
@@ -460,25 +384,19 @@ export async function createRecipe(
     await db.batch(batchQueries);
   }
 
-  const created = await getRecipeById(db, recipeId);
-  return created!;
+  return await getRecipeById(db, recipeId);
 }
 
-export async function updateRecipe(
-  db: D1Database,
-  id: number,
-  dto: RecipeDTO,
-  userId: number
-): Promise<RecipeDTO | null> {
+export async function updateRecipe(db, id, dto, userId) {
   const existing = await db
     .prepare("SELECT * FROM recipes WHERE id = ? AND user_id = ?")
     .bind(id, userId)
-    .first<RecipeRow>();
+    .first();
 
   if (!existing) return null;
 
-  const updates: string[] = ["updated_at = datetime('now')"];
-  const params: any[] = [];
+  const updates = ["updated_at = datetime('now')"];
+  const params = [];
 
   if (dto.name !== undefined) {
     updates.push("name = ?");
@@ -516,7 +434,7 @@ export async function updateRecipe(
   params.push(id, userId);
   await db.prepare(`UPDATE recipes SET ${updates.join(", ")} WHERE id = ? AND user_id = ?`).bind(...params).run();
 
-  const batchQueries: D1PreparedStatement[] = [];
+  const batchQueries = [];
 
   if (dto.ingredients !== undefined) {
     batchQueries.push(db.prepare("DELETE FROM ingredients WHERE recipe_id = ?").bind(id));
@@ -569,11 +487,11 @@ export async function updateRecipe(
   return getRecipeById(db, id);
 }
 
-export async function deleteRecipe(db: D1Database, id: number, userId: number): Promise<boolean> {
+export async function deleteRecipe(db, id, userId) {
   const existing = await db
     .prepare("SELECT * FROM recipes WHERE id = ? AND user_id = ?")
     .bind(id, userId)
-    .first<RecipeRow>();
+    .first();
 
   if (!existing) return false;
 
