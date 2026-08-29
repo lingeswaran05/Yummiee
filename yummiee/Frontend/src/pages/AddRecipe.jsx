@@ -9,7 +9,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 
 import MainLayout from "../layouts/MainLayout";
-import { createRecipe } from "../services/api";
+import { createRecipe, uploadImageApi } from "../services/api";
 
 function AddRecipe() {
   const navigate = useNavigate();
@@ -43,6 +43,7 @@ function AddRecipe() {
     },
   ]);
 
+  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
   const updateRecipe = (field, value) => {
@@ -113,14 +114,11 @@ function AddRecipe() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setImageFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64Data = reader.result;
       setImagePreview(base64Data);
-      setRecipe((current) => ({
-        ...current,
-        image: base64Data,
-      }));
     };
     reader.readAsDataURL(file);
   };
@@ -133,6 +131,19 @@ function AddRecipe() {
       const rawTime = Number(recipe.time) || 0;
       const totalMinutes = timeUnit === "hr" ? Math.round(rawTime * 60) : Math.round(rawTime);
 
+      let finalImageUrl = recipe.image || imagePreview || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800";
+
+      if (imageFile) {
+        try {
+          const uploadRes = await uploadImageApi(imageFile);
+          if (uploadRes?.url) {
+            finalImageUrl = uploadRes.url;
+          }
+        } catch (uploadErr) {
+          console.warn("Could not upload to R2, falling back to preview/default:", uploadErr);
+        }
+      }
+
       const payload = {
         name: recipe.name,
         description: recipe.description,
@@ -140,7 +151,7 @@ function AddRecipe() {
         time: totalMinutes,
         difficulty: recipe.difficulty,
         servings: Number(recipe.servings),
-        image: recipe.image || imagePreview || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800",
+        image: finalImageUrl,
         ingredients: ingredients.map((ing) => ({
           name: ing.name,
           quantity: Number(ing.quantity) || 1,
@@ -157,7 +168,7 @@ function AddRecipe() {
       navigate("/dashboard");
     } catch (err) {
       console.error("Error creating recipe:", err);
-      alert("Failed to create recipe. Make sure the Spring Boot backend is running.");
+      alert("Failed to create recipe. Please check your backend connection.");
     } finally {
       setSubmitting(false);
     }

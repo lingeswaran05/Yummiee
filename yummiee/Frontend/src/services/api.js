@@ -174,3 +174,38 @@ export async function clearShoppingListApi() {
     method: "DELETE",
   });
 }
+
+// Image Storage APIs (Cloudflare R2)
+export function resolveImageUrl(imageUrl) {
+  if (!imageUrl) return "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800";
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://") || imageUrl.startsWith("data:")) {
+    return imageUrl;
+  }
+  return `${cleanApiUrl}${imageUrl.startsWith("/") ? "" : "/"}${imageUrl}`;
+}
+
+export async function uploadImageApi(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const authHeaders = await getAuthHeaders();
+  delete authHeaders["Content-Type"];
+
+  const response = await fetch(`${API_BASE_URL}/images/upload`, {
+    method: "POST",
+    headers: authHeaders,
+    body: formData,
+  });
+
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(data?.message || "Failed to upload image to R2 storage");
+  }
+
+  // Return resolved URL if relative
+  if (data?.url && !data.url.startsWith("http")) {
+    data.url = `${cleanApiUrl}${data.url.startsWith("/") ? "" : "/"}${data.url}`;
+  }
+
+  return data;
+}
+

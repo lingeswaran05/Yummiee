@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, ImagePlus, Plus, Trash2, GripVertical, AlertCircle } from "lucide-react";
 import MainLayout from "../layouts/MainLayout";
 import RecipeFormSkeleton from "../components/RecipeFormSkeleton";
-import { fetchRecipeById, updateRecipe } from "../services/api";
+import { fetchRecipeById, updateRecipe, uploadImageApi } from "../services/api";
 
 function EditRecipe() {
   const { id } = useParams();
@@ -26,6 +26,7 @@ function EditRecipe() {
   const [timeUnit, setTimeUnit] = useState("min");
   const [ingredients, setIngredients] = useState([]);
   const [instructions, setInstructions] = useState([]);
+  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
   useEffect(() => {
@@ -146,14 +147,11 @@ function EditRecipe() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setImageFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64Data = reader.result;
       setImagePreview(base64Data);
-      setRecipe((current) => ({
-        ...current,
-        image: base64Data,
-      }));
     };
     reader.readAsDataURL(file);
   };
@@ -166,6 +164,19 @@ function EditRecipe() {
       const rawTime = Number(recipe.time) || 0;
       const totalMinutes = timeUnit === "hr" ? Math.round(rawTime * 60) : Math.round(rawTime);
 
+      let finalImageUrl = recipe.image || imagePreview;
+
+      if (imageFile) {
+        try {
+          const uploadRes = await uploadImageApi(imageFile);
+          if (uploadRes?.url) {
+            finalImageUrl = uploadRes.url;
+          }
+        } catch (uploadErr) {
+          console.warn("Could not upload image to R2, preserving current:", uploadErr);
+        }
+      }
+
       const payload = {
         name: recipe.name,
         description: recipe.description,
@@ -173,7 +184,7 @@ function EditRecipe() {
         time: totalMinutes,
         difficulty: recipe.difficulty,
         servings: Number(recipe.servings),
-        image: recipe.image || imagePreview,
+        image: finalImageUrl,
         ingredients: ingredients
           .filter((ing) => ing.name.trim() !== "")
           .map((ing) => ({
@@ -194,7 +205,7 @@ function EditRecipe() {
       navigate("/my-recipes");
     } catch (err) {
       console.error("Error updating recipe:", err);
-      alert("Failed to update recipe. Please check backend connections.");
+      alert("Failed to update recipe. Please check your backend connection.");
     } finally {
       setSubmitting(false);
     }
