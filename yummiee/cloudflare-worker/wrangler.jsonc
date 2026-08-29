@@ -24,7 +24,6 @@
     "ALLOWED_ORIGIN": "http://localhost:5173",
     "CLERK_PUBLISHABLE_KEY": "pk_test_bWVhc3VyZWQtaG9uZXliZWUtNzE1OS5jbGVyay5hY2NvdW50cy5kZXYk",
     "CLERK_ISSUER": "https://measured-honeybee-7159.clerk.accounts.dev",
-    "CLERK_JWKS_URL": "https://measured-honeybee-7159.clerk.accounts.dev/.well-known/jwks.json",
-    "CLERK_JWT_KEY": "yummiee-test-jwt-verification-secret-32-chars-long!"
+    "CLERK_JWKS_URL": "https://measured-honeybee-7159.clerk.accounts.dev/.well-known/jwks.json"
   }
 }
