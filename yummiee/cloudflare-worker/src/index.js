@@ -12,9 +12,15 @@ const app = new Hono();
 app.use(
   "*",
   cors({
-    origin: (origin) => {
-      // Return origin or wildcard
-      return origin || "*";
+    origin: (origin, c) => {
+      const allowed = c.env.ALLOWED_ORIGIN || "http://localhost:5173";
+      if (!origin) return null;
+      if (allowed === "*") return origin;
+      const allowedList = allowed.split(",").map((s) => s.trim());
+      if (allowedList.includes(origin)) {
+        return origin;
+      }
+      return null;
     },
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     allowHeaders: [

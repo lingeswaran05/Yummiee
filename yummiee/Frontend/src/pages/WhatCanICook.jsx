@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   ChefHat,
   Clock,
   Heart,
-  Plus,
   Search,
   Users,
   X,
@@ -30,7 +29,6 @@ const CATEGORIES = [
 ];
 
 function WhatCanICook() {
-  const navigate = useNavigate();
   const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [ingredients, setIngredients] = useState(["Tomato", "Onion", "Egg"]);
@@ -181,6 +179,13 @@ function WhatCanICook() {
             </button>
           </div>
         </section>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+            {error}
+          </div>
+        )}
 
         {/* Results Section */}
         {loading && (

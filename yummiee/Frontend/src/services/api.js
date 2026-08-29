@@ -1,4 +1,4 @@
-const rawApiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "http://localhost:10000";
+const rawApiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "http://localhost:8787";
 const cleanApiUrl = rawApiUrl.replace(/\/$/, "");
 const API_BASE_URL = cleanApiUrl.endsWith("/api") ? cleanApiUrl : `${cleanApiUrl}/api`;
 
@@ -29,9 +29,6 @@ async function getAuthHeaders() {
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
-  }
-  if (currentAuth.userId) {
-    headers["x-clerk-user-id"] = currentAuth.userId;
   }
 
   return headers;

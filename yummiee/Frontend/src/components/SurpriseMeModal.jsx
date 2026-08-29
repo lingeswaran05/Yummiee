@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Clock, Users, X, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { formatTime } from "../utils/formatTime";

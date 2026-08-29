@@ -29,7 +29,7 @@ function AddRecipe() {
 
   const [ingredients, setIngredients] = useState([
     {
-      id: Date.now(),
+      id: 1,
       name: "",
       quantity: 1,
       unit: "unit",
@@ -38,7 +38,7 @@ function AddRecipe() {
 
   const [instructions, setInstructions] = useState([
     {
-      id: Date.now(),
+      id: 1,
       text: "",
     },
   ]);

@@ -61,11 +61,11 @@ function App() {
       {isSignedIn ? (
         <WishlistProvider key={`wishlist-${userId}`}>
           <ShoppingListProvider key={`shopping-${userId}`}>
-            <AppRoutes />
+            <AppRoutes key={`routes-${userId}`} />
           </ShoppingListProvider>
         </WishlistProvider>
       ) : (
-        <AppRoutes />
+        <AppRoutes key="routes-anonymous" />
       )}
     </HashRouter>
   );
