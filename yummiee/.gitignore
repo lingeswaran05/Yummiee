@@ -24,8 +24,13 @@ yummiee-java-db*
 *.log
 **/logs/
 
+# Cloudflare / Wrangler
+.wrangler/
+.mf/
+
 # IDE / OS files
 .DS_Store
 .idea/
 .vscode/
 *.iml
+
