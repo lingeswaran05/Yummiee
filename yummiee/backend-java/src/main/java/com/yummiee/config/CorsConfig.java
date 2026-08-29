@@ -22,7 +22,14 @@ public class CorsConfig {
                         : "http://localhost:5173";
 
                 registry.addMapping("/**")
-                        .allowedOriginPatterns(allowedUrl, "http://localhost:*", "http://127.0.0.1:*")
+                        .allowedOriginPatterns(
+                                allowedUrl,
+                                "http://localhost:*",
+                                "http://127.0.0.1:*",
+                                "https://*.web.app",
+                                "https://*.firebaseapp.com",
+                                "https://*.onrender.com"
+                        )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
