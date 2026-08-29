@@ -10,7 +10,7 @@
     {
       "binding": "DB",
       "database_name": "yummiee-db",
-      "database_id": "placeholder-yummiee-db-id",
+      "database_id": "46405f1a-bd80-45f3-a5bf-2f7d2facb3bc",
       "migrations_dir": "migrations"
     }
   ],
