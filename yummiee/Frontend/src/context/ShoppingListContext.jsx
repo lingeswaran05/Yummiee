@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "@clerk/react";
 import {
   fetchShoppingList,
   addShoppingListItemApi,
@@ -10,10 +11,17 @@ import {
 const ShoppingListContext = createContext();
 
 export function ShoppingListProvider({ children }) {
+  const { isSignedIn, userId } = useAuth();
   const [shoppingList, setShoppingList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadShoppingList = async () => {
+    if (!isSignedIn) {
+      setShoppingList([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const data = await fetchShoppingList();
@@ -27,11 +35,16 @@ export function ShoppingListProvider({ children }) {
   };
 
   useEffect(() => {
-    loadShoppingList();
-  }, []);
+    if (isSignedIn && userId) {
+      loadShoppingList();
+    } else {
+      setShoppingList([]);
+      setLoading(false);
+    }
+  }, [isSignedIn, userId]);
 
   const addIngredients = async (recipe, servings) => {
-    if (!recipe || !recipe.ingredients) return;
+    if (!isSignedIn || !recipe || !recipe.ingredients) return;
 
     for (const ingredient of recipe.ingredients) {
       const scaledQuantity = (ingredient.quantity / recipe.servings) * servings;
@@ -51,6 +64,7 @@ export function ShoppingListProvider({ children }) {
   };
 
   const toggleItem = async (itemId) => {
+    if (!isSignedIn) return;
     const target = shoppingList.find((item) => item.id === itemId);
     if (!target) return;
 
@@ -70,6 +84,7 @@ export function ShoppingListProvider({ children }) {
   };
 
   const removeItem = async (itemId) => {
+    if (!isSignedIn) return;
     setShoppingList((current) => current.filter((item) => item.id !== itemId));
 
     try {
@@ -81,6 +96,7 @@ export function ShoppingListProvider({ children }) {
   };
 
   const clearList = async () => {
+    if (!isSignedIn) return;
     setShoppingList([]);
 
     try {

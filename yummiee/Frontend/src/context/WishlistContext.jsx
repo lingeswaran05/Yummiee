@@ -1,13 +1,21 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "@clerk/react";
 import { fetchWishlist, addToWishlistApi, removeFromWishlistApi } from "../services/api";
 
 const WishlistContext = createContext();
 
 export function WishlistProvider({ children }) {
+  const { isSignedIn, userId } = useAuth();
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const loadWishlist = async () => {
+    if (!isSignedIn) {
+      setWishlist([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const data = await fetchWishlist();
@@ -21,14 +29,20 @@ export function WishlistProvider({ children }) {
   };
 
   useEffect(() => {
-    loadWishlist();
-  }, []);
+    if (isSignedIn && userId) {
+      loadWishlist();
+    } else {
+      setWishlist([]);
+      setLoading(false);
+    }
+  }, [isSignedIn, userId]);
 
   const isInWishlist = (recipeId) => {
     return wishlist.some((recipe) => recipe.id === recipeId);
   };
 
   const toggleWishlist = async (recipe) => {
+    if (!isSignedIn) return;
     const saved = isInWishlist(recipe.id);
 
     // Optimistic UI update

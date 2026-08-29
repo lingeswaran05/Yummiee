@@ -59,8 +59,8 @@ function App() {
   return (
     <HashRouter>
       {isSignedIn ? (
-        <WishlistProvider key={userId}>
-          <ShoppingListProvider>
+        <WishlistProvider key={`wishlist-${userId}`}>
+          <ShoppingListProvider key={`shopping-${userId}`}>
             <AppRoutes />
           </ShoppingListProvider>
         </WishlistProvider>

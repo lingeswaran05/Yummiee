@@ -9,19 +9,32 @@ import { imagesRouter } from "./routes/images";
 
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 
-// CORS configuration
-app.use(
-  "*",
-  cors({
+// Production-safe CORS configuration
+app.use("*", async (c, next) => {
+  const allowedOriginEnv = c.env.ALLOWED_ORIGIN || "*";
+  const allowedList = allowedOriginEnv.split(",").map((o) => o.trim());
+
+  const corsMiddleware = cors({
     origin: (origin) => {
-      // Allow any origin during development and hackathon deployments
-      return origin || "*";
+      if (!origin) return "*";
+      if (allowedOriginEnv === "*") return origin;
+      if (allowedList.includes(origin) || allowedList.includes("*")) {
+        return origin;
+      }
+      // Allow localhost and local IP ranges during development
+      if (
+        origin.startsWith("http://localhost:") ||
+        origin.startsWith("http://127.0.0.1:") ||
+        origin.endsWith(".pages.dev")
+      ) {
+        return origin;
+      }
+      return null;
     },
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     allowHeaders: [
       "Content-Type",
       "Authorization",
-      "x-clerk-user-id",
       "X-Requested-With",
       "Accept",
       "Origin",
@@ -29,8 +42,10 @@ app.use(
     exposeHeaders: ["Content-Length", "Content-Type", "ETag"],
     maxAge: 86400,
     credentials: true,
-  })
-);
+  });
+
+  return corsMiddleware(c, next);
+});
 
 // Global Error Handler
 app.onError((err, c) => {
@@ -38,7 +53,7 @@ app.onError((err, c) => {
   return c.json(
     {
       error: "Internal Server Error",
-      message: err.message || "An unexpected error occurred",
+      message: "An unexpected server error occurred",
     },
     500
   );

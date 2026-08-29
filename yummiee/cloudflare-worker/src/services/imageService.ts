@@ -11,11 +11,11 @@ export async function uploadImage(
   data: ArrayBuffer | Uint8Array | ReadableStream,
   contentType: string,
   originalName: string,
-  userId: number | null
+  userId: number
 ): Promise<UploadResult> {
   const ext = originalName.includes(".") ? originalName.split(".").pop()?.toLowerCase() || "jpg" : "jpg";
   const safeName = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
-  const key = `recipes/${userId || "public"}/${safeName}`;
+  const key = `recipes/${userId}/${safeName}`;
 
   let size = 0;
   if (data instanceof ArrayBuffer) {
@@ -57,20 +57,19 @@ export async function deleteImage(
   r2: R2Bucket,
   db: D1Database,
   key: string,
-  userId?: number | null
+  userId: number
 ): Promise<boolean> {
-  if (userId) {
-    const asset = await db
-      .prepare("SELECT * FROM image_assets WHERE key = ? AND (user_id = ? OR user_id IS NULL)")
-      .bind(key, userId)
-      .first();
-    if (!asset) {
-      // not owner
-      return false;
-    }
+  const asset = await db
+    .prepare("SELECT * FROM image_assets WHERE key = ? AND user_id = ?")
+    .bind(key, userId)
+    .first();
+
+  if (!asset) {
+    // User is not the owner or asset does not exist
+    return false;
   }
 
   await r2.delete(key);
-  await db.prepare("DELETE FROM image_assets WHERE key = ?").bind(key).run();
+  await db.prepare("DELETE FROM image_assets WHERE key = ? AND user_id = ?").bind(key, userId).run();
   return true;
 }

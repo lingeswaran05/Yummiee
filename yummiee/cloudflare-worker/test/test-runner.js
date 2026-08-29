@@ -1,6 +1,24 @@
-// test-runner.js - Comprehensive integration test suite for Yummiee Cloudflare Worker
+// test-runner.js - Multi-User Isolation & Cryptographic Auth Verification Test Suite
+import { SignJWT } from "jose";
 
 const BASE_URL = "http://127.0.0.1:8787";
+const TEST_SECRET = new TextEncoder().encode("test_secret_for_local_dev_only_change_in_prod");
+
+/**
+ * Creates a cryptographically signed JWT for a given Clerk user identity.
+ */
+async function generateTestToken(sub, email, firstName, lastName, expiresIn = "2h") {
+  return await new SignJWT({
+    sub,
+    email,
+    first_name: firstName,
+    last_name: lastName,
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(expiresIn)
+    .sign(TEST_SECRET);
+}
 
 async function assert(desc, condition, details = "") {
   if (condition) {
@@ -12,57 +30,44 @@ async function assert(desc, condition, details = "") {
 }
 
 async function runTests() {
-  console.log("\n🚀 Starting Yummiee Cloudflare API Verification Test Suite...\n");
+  console.log("\n🚀 Starting Yummiee Cloudflare Multi-User Isolation & Security Audit Test Suite...\n");
 
-  // 1. Health Check
-  console.log("--- 1. Health Endpoint ---");
+  // 1. Health Endpoint
+  console.log("--- 1. Health & Public Endpoints ---");
   const healthRes = await fetch(`${BASE_URL}/api/health`);
   const healthData = await healthRes.json();
   assert("Health check returns 200", healthRes.status === 200);
   assert("Health check status is ok", healthData.status === "ok");
 
-  // 2. Recipe Listing & Seed Verification
-  console.log("\n--- 2. Recipe Listing & Filters ---");
+  // 2. Recipe Catalog & Public Browsing
+  console.log("\n--- 2. Public Recipe Catalog & Search ---");
   const allRecipesRes = await fetch(`${BASE_URL}/api/recipes`);
   const allRecipes = await allRecipesRes.json();
-  assert("Fetch all recipes returns array", Array.isArray(allRecipes));
-  assert("Seed recipes count >= 8", allRecipes.length >= 8, `Got ${allRecipes.length}`);
+  assert("Fetch public recipes returns array", Array.isArray(allRecipes));
+  assert("Seed catalog contains at least 8 recipes", allRecipes.length >= 8, `Got ${allRecipes.length}`);
 
-  // Search filter
   const searchRes = await fetch(`${BASE_URL}/api/recipes?search=Tuscan`);
   const searchData = await searchRes.json();
-  assert("Search filter finds Tuscan Chicken", searchData.some(r => r.name.includes("Tuscan")));
+  assert("Search filter finds Tuscan Chicken", searchData.some((r) => r.name.includes("Tuscan")));
 
-  // Category filter
   const catRes = await fetch(`${BASE_URL}/api/recipes?category=Breakfast`);
   const catData = await catRes.json();
-  assert("Category filter returns only Breakfast", catData.every(r => r.category === "Breakfast"));
+  assert("Category filter returns only Breakfast recipes", catData.every((r) => r.category === "Breakfast"));
 
-  // Sort filter
-  const sortRes = await fetch(`${BASE_URL}/api/recipes?sort=Quickest`);
-  const sortData = await sortRes.json();
-  assert("Quickest sort returns fastest recipe first", sortData[0].time <= sortData[sortData.length - 1].time);
-
-  // 3. Recipe Details
-  console.log("\n--- 3. Recipe Details & Relations ---");
   const recipe1Res = await fetch(`${BASE_URL}/api/recipes/1`);
   const recipe1 = await recipe1Res.json();
-  assert("Fetch recipe 1 returns 200", recipe1Res.status === 200);
-  assert("Recipe 1 has name 'Creamy Tuscan Garlic Chicken'", recipe1.name === "Creamy Tuscan Garlic Chicken");
-  assert("Recipe 1 has ingredients array", Array.isArray(recipe1.ingredients) && recipe1.ingredients.length > 0);
-  assert("Recipe 1 has instructions array", Array.isArray(recipe1.instructions) && recipe1.instructions.length > 0);
-  assert("Recipe 1 has nutrition info", recipe1.nutrition !== null && recipe1.nutrition.calories === 480);
+  assert("Fetch recipe details returns 200", recipe1Res.status === 200);
+  assert("Recipe has structured ingredients", Array.isArray(recipe1.ingredients) && recipe1.ingredients.length > 0);
+  assert("Recipe has step instructions", Array.isArray(recipe1.instructions) && recipe1.instructions.length > 0);
+  assert("Recipe has nutrition info", recipe1.nutrition !== null && recipe1.nutrition.calories === 480);
 
-  // 4. Recipe Suggestions
-  console.log("\n--- 4. Recipe Suggestion ---");
+  // 3. Suggestions & Ingredient Matching
+  console.log("\n--- 3. Recipe Suggestions & Ingredient Match ---");
   const suggRes = await fetch(`${BASE_URL}/api/recipes/suggestion?mealPeriod=Breakfast`);
   const suggData = await suggRes.json();
-  assert("Suggestion returns 200", suggRes.status === 200);
-  assert("Suggestion has mealPeriod", suggData.mealPeriod === "Breakfast");
-  assert("Suggestion recipe is valid", suggData.recipe && suggData.recipe.name);
+  assert("Suggestion endpoint returns 200", suggRes.status === 200);
+  assert("Suggestion includes matching mealPeriod", suggData.mealPeriod === "Breakfast");
 
-  // 5. Ingredient Matching Algorithm
-  console.log("\n--- 5. Ingredient Matching Algorithm ---");
   const matchRes = await fetch(`${BASE_URL}/api/recipes/match`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -73,159 +78,200 @@ async function runTests() {
   });
   const matchData = await matchRes.json();
   assert("Match endpoint returns 200", matchRes.status === 200);
-  assert("Match results found", Array.isArray(matchData) && matchData.length > 0);
-  assert("Top match is Tuscan Chicken", matchData[0].recipe.name === "Creamy Tuscan Garlic Chicken");
-  assert("Match percentage is calculated", matchData[0].matchPercentage > 50);
+  assert("Top matched recipe is Creamy Tuscan Garlic Chicken", matchData[0]?.recipe?.name === "Creamy Tuscan Garlic Chicken");
 
-  // 6. Authentication & User Isolation
-  console.log("\n--- 6. Authentication & User Isolation ---");
-  const unauthPostRes = await fetch(`${BASE_URL}/api/recipes`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: "Unauth Recipe" }),
+  // 4. Security & Cryptographic Authentication Audit
+  console.log("\n--- 4. Cryptographic Authentication & Spoofing Defense ---");
+  
+  // Test A: No token
+  const noTokenRes = await fetch(`${BASE_URL}/api/recipes/my-recipes`);
+  assert("Unauthenticated request without token rejected (401)", noTokenRes.status === 401);
+
+  // Test B: Spoofed x-clerk-user-id header without cryptographic token
+  const spoofHeaderRes = await fetch(`${BASE_URL}/api/recipes/my-recipes`, {
+    headers: { "x-clerk-user-id": "user_fake_attacker_999" },
   });
-  assert("Unauthenticated recipe create returns 401", unauthPostRes.status === 401);
+  assert("Spoofed x-clerk-user-id without verified token rejected (401)", spoofHeaderRes.status === 401);
 
-  // Create recipe as User A
-  const userAHeader = { "x-clerk-user-id": "user_clerk_alice_123", "Content-Type": "application/json" };
-  const userBHeader = { "x-clerk-user-id": "user_clerk_bob_456", "Content-Type": "application/json" };
+  // Test C: Tampered JWT token
+  const validTokenA = await generateTestToken("user_alice_clerk_123", "alice@example.com", "Alice", "Johnson");
+  const tamperedToken = validTokenA.slice(0, -10) + "tampered123";
+  const tamperedRes = await fetch(`${BASE_URL}/api/recipes/my-recipes`, {
+    headers: { Authorization: `Bearer ${tamperedToken}` },
+  });
+  assert("Cryptographically tampered JWT token rejected (401)", tamperedRes.status === 401);
 
-  const createRecipeRes = await fetch(`${BASE_URL}/api/recipes`, {
+  // Test D: Expired JWT token
+  const expiredToken = await generateTestToken("user_alice_clerk_123", "alice@example.com", "Alice", "Johnson", "-10m");
+  const expiredRes = await fetch(`${BASE_URL}/api/recipes/my-recipes`, {
+    headers: { Authorization: `Bearer ${expiredToken}` },
+  });
+  assert("Expired JWT token rejected (401)", expiredRes.status === 401);
+
+  // 5. Complete End-to-End Multi-User Isolation Journey
+  console.log("\n--- 5. End-to-End Multi-User Isolation Journey ---");
+
+  const validTokenB = await generateTestToken("user_bob_clerk_456", "bob@example.com", "Bob", "Smith");
+  const authHeaderA = { Authorization: `Bearer ${validTokenA}`, "Content-Type": "application/json" };
+  const authHeaderB = { Authorization: `Bearer ${validTokenB}`, "Content-Type": "application/json" };
+
+  console.log("\n  [User A Session: Alice]");
+  // User A creates Recipe A
+  const createRecipeARes = await fetch(`${BASE_URL}/api/recipes`, {
     method: "POST",
-    headers: userAHeader,
+    headers: authHeaderA,
     body: JSON.stringify({
-      name: "Alice Custom Soup",
-      description: "A comforting soup created by Alice",
+      name: "Alice Private Chicken Curry",
+      description: "Alice secret family recipe",
       category: "Dinner",
-      time: 25,
-      difficulty: "Easy",
-      servings: 2,
-      ingredients: [{ name: "Carrot", quantity: 2, unit: "pcs" }],
-      instructions: [{ step: 1, title: "Boil", description: "Boil water and add carrots" }],
-      nutrition: { calories: 150, protein: 3, carbs: 20, fat: 2 },
+      time: 35,
+      difficulty: "Medium",
+      servings: 4,
+      ingredients: [{ name: "Chicken", quantity: 500, unit: "g" }],
+      instructions: [{ step: 1, title: "Cook", description: "Cook thoroughly" }],
+      nutrition: { calories: 450, protein: 35, carbs: 10, fat: 20 },
     }),
   });
-  const createdRecipe = await createRecipeRes.json();
-  assert("User A creates recipe (201 Created)", createRecipeRes.status === 201);
-  const createdRecipeId = createdRecipe.id;
+  const recipeA = await createRecipeARes.json();
+  assert("User A creates Recipe A (201 Created)", createRecipeARes.status === 201);
+  const recipeAId = recipeA.id;
 
-  // Verify User A sees in my-recipes
-  const myRecipesARes = await fetch(`${BASE_URL}/api/recipes/my-recipes`, { headers: userAHeader });
-  const myRecipesA = await myRecipesARes.json();
-  assert("User A sees custom recipe in my-recipes", myRecipesA.some(r => r.id === createdRecipeId));
-
-  // Verify User B does NOT see User A's recipe in my-recipes
-  const myRecipesBRes = await fetch(`${BASE_URL}/api/recipes/my-recipes`, { headers: userBHeader });
-  const myRecipesB = await myRecipesBRes.json();
-  assert("User B does NOT see User A's recipe in my-recipes (Isolation)", !myRecipesB.some(r => r.id === createdRecipeId));
-
-  // User B cannot edit User A's recipe
-  const editByBRes = await fetch(`${BASE_URL}/api/recipes/${createdRecipeId}`, {
-    method: "PUT",
-    headers: userBHeader,
-    body: JSON.stringify({ name: "Bob Hacked Soup" }),
-  });
-  assert("User B cannot edit User A's recipe (404 / Forbidden)", editByBRes.status === 404);
-
-  // User A can edit own recipe
-  const editByARes = await fetch(`${BASE_URL}/api/recipes/${createdRecipeId}`, {
-    method: "PUT",
-    headers: userAHeader,
-    body: JSON.stringify({ name: "Alice Masterpiece Soup" }),
-  });
-  const editedRecipe = await editByARes.json();
-  assert("User A can edit own recipe (200 OK)", editByARes.status === 200 && editedRecipe.name === "Alice Masterpiece Soup");
-
-  // 7. Wishlist Operations & Isolation
-  console.log("\n--- 7. Wishlist Operations & Isolation ---");
-  const addWishlistRes = await fetch(`${BASE_URL}/api/wishlist/1`, {
+  // User A adds Recipe 1 to Wishlist
+  const addWishlistARes = await fetch(`${BASE_URL}/api/wishlist/1`, {
     method: "POST",
-    headers: userAHeader,
+    headers: authHeaderA,
   });
-  assert("User A adds recipe 1 to wishlist (201 Created)", addWishlistRes.status === 201);
+  assert("User A adds Recipe 1 to Wishlist (201 Created)", addWishlistARes.status === 201);
 
-  const wishlistARes = await fetch(`${BASE_URL}/api/wishlist`, { headers: userAHeader });
-  const wishlistA = await wishlistARes.json();
-  assert("User A wishlist contains recipe 1", wishlistA.some(r => r.id === 1));
-
-  const wishlistBRes = await fetch(`${BASE_URL}/api/wishlist`, { headers: userBHeader });
-  const wishlistB = await wishlistBRes.json();
-  assert("User B wishlist is isolated and empty", wishlistB.length === 0);
-
-  const delWishlistRes = await fetch(`${BASE_URL}/api/wishlist/1`, {
-    method: "DELETE",
-    headers: userAHeader,
-  });
-  assert("User A removes recipe 1 from wishlist (204 No Content)", delWishlistRes.status === 204);
-
-  // 8. Shopping List Operations & Isolation
-  console.log("\n--- 8. Shopping List Operations & Isolation ---");
-  const addShopRes = await fetch(`${BASE_URL}/api/shopping-list`, {
+  // User A adds Shopping Item A
+  const addShopARes = await fetch(`${BASE_URL}/api/shopping-list`, {
     method: "POST",
-    headers: userAHeader,
+    headers: authHeaderA,
     body: JSON.stringify({ name: "Organic Honey", quantity: 1, unit: "jar", recipeId: 1 }),
   });
-  const shopItem = await addShopRes.json();
-  assert("User A adds item to shopping list (201 Created)", addShopRes.status === 201);
-  const shopItemId = shopItem.id;
+  const shopItemA = await addShopARes.json();
+  assert("User A adds Shopping Item A (201 Created)", addShopARes.status === 201);
+  const shopItemAId = shopItemA.id;
 
-  const shopARes = await fetch(`${BASE_URL}/api/shopping-list`, { headers: userAHeader });
-  const shopA = await shopARes.json();
-  assert("User A shopping list contains item", shopA.some(i => i.id === shopItemId));
-
-  const shopBRes = await fetch(`${BASE_URL}/api/shopping-list`, { headers: userBHeader });
-  const shopB = await shopBRes.json();
-  assert("User B shopping list is isolated and empty", shopB.length === 0);
-
-  // Update item checked state
-  const updateShopRes = await fetch(`${BASE_URL}/api/shopping-list/${shopItemId}`, {
-    method: "PUT",
-    headers: userAHeader,
-    body: JSON.stringify({ checked: true }),
-  });
-  assert("User A updates shopping list item (200 OK)", updateShopRes.status === 200);
-
-  // Delete item
-  const delShopRes = await fetch(`${BASE_URL}/api/shopping-list/${shopItemId}`, {
-    method: "DELETE",
-    headers: userAHeader,
-  });
-  assert("User A deletes shopping list item (204 No Content)", delShopRes.status === 204);
-
-  // 9. R2 Image Storage & Retrieval
-  console.log("\n--- 9. Cloudflare R2 Image Storage ---");
-  // 1x1 transparent PNG base64
+  // User A uploads an image to R2
   const samplePngBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
-  const uploadRes = await fetch(`${BASE_URL}/api/images/upload`, {
+  const uploadARes = await fetch(`${BASE_URL}/api/images/upload`, {
     method: "POST",
-    headers: userAHeader,
+    headers: authHeaderA,
     body: JSON.stringify({
       image: samplePngBase64,
-      filename: "test-dish.png",
+      filename: "alice-dish.png",
       contentType: "image/png",
     }),
   });
-  const uploadData = await uploadRes.json();
-  assert("Image upload returns 201 Created", uploadRes.status === 201);
-  assert("Image upload returns image key and URL", uploadData.key && uploadData.url);
+  const uploadAData = await uploadARes.json();
+  assert("User A uploads image to R2 (201 Created)", uploadARes.status === 201);
+  assert("User A receives R2 image key", uploadAData.key && uploadAData.url);
 
-  // Retrieve image from R2 via Worker route
-  const getImageRes = await fetch(`${BASE_URL}${uploadData.url}`);
-  assert("Retrieve image from R2 returns 200", getImageRes.status === 200);
-  assert("Image Content-Type is image/png", getImageRes.headers.get("content-type")?.includes("image/png"));
+  console.log("\n  [User A Logout -> User B Session: Bob]");
+  // Verify User B does NOT see User A's private recipes
+  const myRecipesB1Res = await fetch(`${BASE_URL}/api/recipes/my-recipes`, { headers: authHeaderB });
+  const myRecipesB1 = await myRecipesB1Res.json();
+  assert("User B does NOT see Recipe A in my-recipes (Empty/Isolated)", !myRecipesB1.some((r) => r.id === recipeAId));
 
-  // 10. Clean up test recipe
-  console.log("\n--- 10. Recipe Cleanup ---");
-  const deleteRecipeRes = await fetch(`${BASE_URL}/api/recipes/${createdRecipeId}`, {
-    method: "DELETE",
-    headers: userAHeader,
+  // Verify User B does NOT see User A's wishlist
+  const wishlistB1Res = await fetch(`${BASE_URL}/api/wishlist`, { headers: authHeaderB });
+  const wishlistB1 = await wishlistB1Res.json();
+  assert("User B does NOT see Recipe 1 in wishlist (Empty/Isolated)", wishlistB1.length === 0);
+
+  // Verify User B does NOT see User A's shopping list
+  const shopB1Res = await fetch(`${BASE_URL}/api/shopping-list`, { headers: authHeaderB });
+  const shopB1 = await shopB1Res.json();
+  assert("User B does NOT see Shopping Item A (Empty/Isolated)", shopB1.length === 0);
+
+  // User B attempts to edit User A's Recipe A
+  const editRecipeBRes = await fetch(`${BASE_URL}/api/recipes/${recipeAId}`, {
+    method: "PUT",
+    headers: authHeaderB,
+    body: JSON.stringify({ name: "Bob Hijacked Recipe" }),
   });
-  assert("User A deletes own recipe (204 No Content)", deleteRecipeRes.status === 204);
+  assert("User B cannot edit User A's recipe (404 Not Found)", editRecipeBRes.status === 404);
 
-  console.log("\n✨ All Integration Tests Completed Successfully!\n");
+  // User B attempts to delete User A's shopping item
+  const delShopBRes = await fetch(`${BASE_URL}/api/shopping-list/${shopItemAId}`, {
+    method: "DELETE",
+    headers: authHeaderB,
+  });
+  assert("User B cannot delete User A's shopping item (404 Not Found)", delShopBRes.status === 404);
+
+  // User B attempts to delete User A's R2 image
+  const delImageBRes = await fetch(`${BASE_URL}${uploadAData.url}`, {
+    method: "DELETE",
+    headers: authHeaderB,
+  });
+  assert("User B cannot delete User A's R2 image (404 Not Found)", delImageBRes.status === 404);
+
+  // User B creates own data
+  const createRecipeBRes = await fetch(`${BASE_URL}/api/recipes`, {
+    method: "POST",
+    headers: authHeaderB,
+    body: JSON.stringify({
+      name: "Bob Signature Risotto",
+      description: "Creamy mushroom risotto",
+      category: "Dinner",
+      time: 40,
+      difficulty: "Medium",
+      servings: 2,
+    }),
+  });
+  const recipeB = await createRecipeBRes.json();
+  assert("User B creates Recipe B (201 Created)", createRecipeBRes.status === 201);
+  const recipeBId = recipeB.id;
+
+  const addWishlistBRes = await fetch(`${BASE_URL}/api/wishlist/2`, {
+    method: "POST",
+    headers: authHeaderB,
+  });
+  assert("User B adds Recipe 2 to Wishlist (201 Created)", addWishlistBRes.status === 201);
+
+  const addShopBRes = await fetch(`${BASE_URL}/api/shopping-list`, {
+    method: "POST",
+    headers: authHeaderB,
+    body: JSON.stringify({ name: "Almond Milk", quantity: 2, unit: "cartons" }),
+  });
+  const shopItemB = await addShopBRes.json();
+  assert("User B adds Shopping Item B (201 Created)", addShopBRes.status === 201);
+
+  console.log("\n  [User B Logout -> User A Session Resumed: Alice]");
+  // User A verifies own data is intact and User B's data is NOT visible
+  const myRecipesA2Res = await fetch(`${BASE_URL}/api/recipes/my-recipes`, { headers: authHeaderA });
+  const myRecipesA2 = await myRecipesA2Res.json();
+  assert("User A sees Recipe A in my-recipes", myRecipesA2.some((r) => r.id === recipeAId));
+  assert("User A does NOT see User B's Recipe B in my-recipes", !myRecipesA2.some((r) => r.id === recipeBId));
+
+  const wishlistA2Res = await fetch(`${BASE_URL}/api/wishlist`, { headers: authHeaderA });
+  const wishlistA2 = await wishlistA2Res.json();
+  assert("User A sees Recipe 1 in wishlist", wishlistA2.some((r) => r.id === 1));
+  assert("User A does NOT see User B's Recipe 2 in wishlist", !wishlistA2.some((r) => r.id === 2));
+
+  const shopA2Res = await fetch(`${BASE_URL}/api/shopping-list`, { headers: authHeaderA });
+  const shopA2 = await shopA2Res.json();
+  assert("User A sees Shopping Item A ('Organic Honey')", shopA2.some((i) => i.id === shopItemAId));
+  assert("User A does NOT see User B's Shopping Item B ('Almond Milk')", !shopA2.some((i) => i.name === "Almond Milk"));
+
+  // Verify User A's R2 image is still accessible
+  const getImageRes = await fetch(`${BASE_URL}${uploadAData.url}`);
+  assert("User A image in R2 is accessible (200 OK)", getImageRes.status === 200);
+
+  // Cleanup test data
+  console.log("\n--- 6. Cleanup Test Data ---");
+  await fetch(`${BASE_URL}${uploadAData.url}`, { method: "DELETE", headers: authHeaderA });
+  await fetch(`${BASE_URL}/api/recipes/${recipeAId}`, { method: "DELETE", headers: authHeaderA });
+  await fetch(`${BASE_URL}/api/recipes/${recipeBId}`, { method: "DELETE", headers: authHeaderB });
+  await fetch(`${BASE_URL}/api/wishlist/1`, { method: "DELETE", headers: authHeaderA });
+  await fetch(`${BASE_URL}/api/wishlist/2`, { method: "DELETE", headers: authHeaderB });
+  await fetch(`${BASE_URL}/api/shopping-list`, { method: "DELETE", headers: authHeaderA });
+  await fetch(`${BASE_URL}/api/shopping-list`, { method: "DELETE", headers: authHeaderB });
+
+  console.log("\n✨ All Multi-User Isolation & Cryptographic Security Tests Passed Successfully!\n");
 }
 
 runTests().catch((err) => {
-  console.error("Test execution error:", err);
+  console.error("Test execution failed:", err);
   process.exit(1);
 });

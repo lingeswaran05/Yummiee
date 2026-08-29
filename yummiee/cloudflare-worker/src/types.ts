@@ -5,6 +5,8 @@ export interface Env {
   CLERK_SECRET_KEY?: string;
   CLERK_PUBLISHABLE_KEY?: string;
   CLERK_ISSUER?: string;
+  CLERK_JWT_KEY?: string;
+  CLERK_JWKS_URL?: string;
 }
 
 export interface UserRecord {

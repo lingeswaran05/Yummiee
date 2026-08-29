@@ -1,24 +1,24 @@
 import { Hono } from "hono";
 import { Env, Variables } from "../types";
-import { optionalAuth, requireAuth } from "../auth/clerk";
+import { requireAuth } from "../auth/clerk";
 import * as imageService from "../services/imageService";
 
 export const imagesRouter = new Hono<{ Bindings: Env; Variables: Variables }>();
 
+// Exclude SVG to prevent script injection vulnerabilities
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
   "image/png",
   "image/webp",
   "image/gif",
-  "image/svg+xml",
 ]);
 
 const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
-// POST /api/images/upload (Supports multipart form or base64 JSON)
-imagesRouter.post("/upload", optionalAuth, async (c) => {
-  const userId = c.get("userId") || null;
+// POST /api/images/upload (Protected - Requires verified authentication)
+imagesRouter.post("/upload", requireAuth, async (c) => {
+  const userId = c.get("userId");
   const contentTypeHeader = c.req.header("Content-Type") || "";
 
   try {
@@ -31,7 +31,7 @@ imagesRouter.post("/upload", optionalAuth, async (c) => {
       }
 
       if (!ALLOWED_MIME_TYPES.has(file.type)) {
-        return c.json({ message: "Invalid image type. Supported: JPG, PNG, WEBP, GIF, SVG" }, 400);
+        return c.json({ message: "Invalid image type. Supported: JPG, PNG, WEBP, GIF" }, 400);
       }
 
       if (file.size > MAX_IMAGE_SIZE_BYTES) {
@@ -72,11 +72,16 @@ imagesRouter.post("/upload", optionalAuth, async (c) => {
       return c.json({ message: "Invalid image type: " + mimeType }, 400);
     }
 
-    // Convert base64 to Uint8Array
-    const binaryStr = atob(base64Data);
-    const bytes = new Uint8Array(binaryStr.length);
-    for (let i = 0; i < binaryStr.length; i++) {
-      bytes[i] = binaryStr.charCodeAt(i);
+    // Convert base64 to Uint8Array safely
+    let bytes: Uint8Array;
+    try {
+      const binaryStr = atob(base64Data);
+      bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+    } catch {
+      return c.json({ message: "Malformed base64 image data" }, 400);
     }
 
     if (bytes.length > MAX_IMAGE_SIZE_BYTES) {
@@ -96,14 +101,13 @@ imagesRouter.post("/upload", optionalAuth, async (c) => {
     return c.json(result, 201);
   } catch (err: any) {
     console.error("Upload error:", err);
-    return c.json({ message: "Failed to upload image: " + (err.message || "Unknown error") }, 500);
+    return c.json({ message: "Failed to upload image" }, 500);
   }
 });
 
-// GET /api/images/* (Stream image from R2 bucket)
+// GET /api/images/* (Stream public image from R2 bucket)
 imagesRouter.get("/*", async (c) => {
   const url = new URL(c.req.url);
-  // Extract key after /api/images/
   let key = url.pathname.replace(/^\/api\/images\//, "");
   if (!key) {
     return c.text("Image key required", 400);
@@ -130,7 +134,7 @@ imagesRouter.get("/*", async (c) => {
   }
 });
 
-// DELETE /api/images/* (Protected)
+// DELETE /api/images/* (Protected - Verified creator only)
 imagesRouter.delete("/*", requireAuth, async (c) => {
   const userId = c.get("userId");
   const url = new URL(c.req.url);

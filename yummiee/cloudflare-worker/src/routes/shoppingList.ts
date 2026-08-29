@@ -5,31 +5,35 @@ import * as shoppingListService from "../services/shoppingListService";
 
 export const shoppingListRouter = new Hono<{ Bindings: Env; Variables: Variables }>();
 
-// GET /api/shopping-list (Protected)
+// GET /api/shopping-list (Protected - Returns only authenticated user's shopping list)
 shoppingListRouter.get("/", requireAuth, async (c) => {
   const userId = c.get("userId");
   const list = await shoppingListService.getUserShoppingList(c.env.DB, userId);
   return c.json(list);
 });
 
-// POST /api/shopping-list (Protected)
+// POST /api/shopping-list (Protected - Adds item for authenticated user)
 shoppingListRouter.post("/", requireAuth, async (c) => {
   const userId = c.get("userId");
   const body = await c.req.json<ShoppingListItemDTO>().catch(() => null);
 
-  if (!body || !body.name || !body.name.trim()) {
+  if (!body || !body.name || typeof body.name !== "string" || !body.name.trim()) {
     return c.json({ message: "Item name is required" }, 400);
+  }
+
+  if (body.name.length > 200) {
+    return c.json({ message: "Item name exceeds maximum length of 200 characters" }, 400);
   }
 
   const created = await shoppingListService.addItem(c.env.DB, userId, body);
   return c.json(created, 201);
 });
 
-// PUT /api/shopping-list/:id (Protected)
+// PUT /api/shopping-list/:id (Protected - Verified creator ownership enforced)
 shoppingListRouter.put("/:id", requireAuth, async (c) => {
   const userId = c.get("userId");
   const id = parseInt(c.req.param("id") || "", 10);
-  if (isNaN(id)) {
+  if (isNaN(id) || id <= 0) {
     return c.text("Item not found", 404);
   }
 
@@ -46,11 +50,11 @@ shoppingListRouter.put("/:id", requireAuth, async (c) => {
   return c.json({ message: "Shopping list item updated" });
 });
 
-// DELETE /api/shopping-list/:id (Protected)
+// DELETE /api/shopping-list/:id (Protected - Verified creator ownership enforced)
 shoppingListRouter.delete("/:id", requireAuth, async (c) => {
   const userId = c.get("userId");
   const id = parseInt(c.req.param("id") || "", 10);
-  if (isNaN(id)) {
+  if (isNaN(id) || id <= 0) {
     return c.body(null, 404);
   }
 
@@ -62,7 +66,7 @@ shoppingListRouter.delete("/:id", requireAuth, async (c) => {
   return c.body(null, 204);
 });
 
-// DELETE /api/shopping-list (Protected - Clear entire list)
+// DELETE /api/shopping-list (Protected - Clears only authenticated user's shopping list)
 shoppingListRouter.delete("/", requireAuth, async (c) => {
   const userId = c.get("userId");
   await shoppingListService.clearList(c.env.DB, userId);
