@@ -164,16 +164,12 @@ function EditRecipe() {
       const rawTime = Number(recipe.time) || 0;
       const totalMinutes = timeUnit === "hr" ? Math.round(rawTime * 60) : Math.round(rawTime);
 
-      let finalImageUrl = recipe.image || imagePreview;
+      let finalImageUrl = recipe.image;
 
       if (imageFile) {
-        try {
-          const uploadRes = await uploadImageApi(imageFile);
-          if (uploadRes?.url) {
-            finalImageUrl = uploadRes.url;
-          }
-        } catch (uploadErr) {
-          console.warn("Could not upload image to R2, preserving current:", uploadErr);
+        const uploadRes = await uploadImageApi(imageFile);
+        if (uploadRes?.url) {
+          finalImageUrl = uploadRes.url;
         }
       }
 

@@ -1,5 +1,5 @@
 // test-runner.js - Multi-User Isolation & Cryptographic Auth Verification Test Suite
-import { SignJWT } from "jose";
+import { generateKeyPair, exportJWK, SignJWT } from "jose";
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
 import path from "node:path";
@@ -7,9 +7,6 @@ import { fileURLToPath } from "node:url";
 import app from "../src/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const TEST_SECRET_STR =
-  process.env.CLERK_JWT_KEY || process.env.CLERK_SECRET_KEY || "yummiee-test-jwt-verification-secret-32-chars-long!";
-const TEST_SECRET = new TextEncoder().encode(TEST_SECRET_STR);
 
 function createD1Database(dbSync) {
   return {
@@ -96,11 +93,33 @@ d1.exec(migration2);
 const testEnv = {
   DB: d1,
   IMAGES: r2,
-  ALLOWED_ORIGIN: "http://localhost:5173",
-  CLERK_JWT_KEY: TEST_SECRET_STR,
+  ALLOWED_ORIGIN: "https://yummiee.yummiee-api.workers.dev",
   CLERK_ISSUER: "https://measured-honeybee-7159.clerk.accounts.dev",
   CLERK_JWKS_URL: "https://measured-honeybee-7159.clerk.accounts.dev/.well-known/jwks.json",
   CLERK_PUBLISHABLE_KEY: "pk_test_bWVhc3VyZWQtaG9uZXliZWUtNzE1OS5jbGVyay5hY2NvdW50cy5kZXYk",
+};
+
+// Generate genuine RS256 key pair for JWKS mocking
+const keyPair = await generateKeyPair("RS256");
+const testJwk = await exportJWK(keyPair.publicKey);
+testJwk.kid = "test-clerk-kid-123";
+testJwk.use = "sig";
+testJwk.alg = "RS256";
+
+// Attacker key pair for untrusted key signature tests
+const attackerKeyPair = await generateKeyPair("RS256");
+
+// Mock global fetch for JWKS retrieval
+const originalFetch = globalThis.fetch;
+globalThis.fetch = async (input, init) => {
+  const urlStr = typeof input === "string" ? input : input?.url || input?.toString();
+  if (urlStr === testEnv.CLERK_JWKS_URL) {
+    return new Response(JSON.stringify({ keys: [testJwk] }), {
+      headers: { "Content-Type": "application/json" },
+      status: 200,
+    });
+  }
+  return originalFetch(input, init);
 };
 
 async function testFetch(urlStr, options = {}) {
@@ -110,19 +129,33 @@ async function testFetch(urlStr, options = {}) {
 }
 
 /**
- * Creates a cryptographically signed JWT for a given Clerk user identity.
+ * Creates a cryptographically signed RS256 JWT for a given Clerk user identity.
  */
-async function generateTestToken(sub, email, firstName, lastName, expiresIn = "2h") {
-  return await new SignJWT({
+async function generateTestToken(
+  sub,
+  email,
+  firstName,
+  lastName,
+  expiresIn = "2h",
+  issuer = testEnv.CLERK_ISSUER,
+  key = keyPair.privateKey,
+  kid = "test-clerk-kid-123"
+) {
+  const jwt = new SignJWT({
     sub,
     email,
     first_name: firstName,
     last_name: lastName,
   })
-    .setProtectedHeader({ alg: "HS256" })
+    .setProtectedHeader({ alg: "RS256", kid })
     .setIssuedAt()
-    .setExpirationTime(expiresIn)
-    .sign(TEST_SECRET);
+    .setExpirationTime(expiresIn);
+
+  if (issuer) {
+    jwt.setIssuer(issuer);
+  }
+
+  return await jwt.sign(key);
 }
 
 async function assert(desc, condition, details = "") {
@@ -216,7 +249,37 @@ async function runTests() {
   });
   assert("Expired JWT token rejected (401)", expiredRes.status === 401);
 
-  // Test E: Valid token + fake spoofed header -> authenticated strictly as token subject
+  // Test E: Token signed with untrusted private key
+  const untrustedKeyToken = await generateTestToken(
+    "user_alice_clerk_123",
+    "alice@example.com",
+    "Alice",
+    "Johnson",
+    "2h",
+    testEnv.CLERK_ISSUER,
+    attackerKeyPair.privateKey,
+    "untrusted-kid"
+  );
+  const untrustedRes = await testFetch("/api/recipes/my-recipes", {
+    headers: { Authorization: `Bearer ${untrustedKeyToken}` },
+  });
+  assert("Token signed with untrusted key rejected (401)", untrustedRes.status === 401);
+
+  // Test F: Token with invalid issuer claim
+  const wrongIssuerToken = await generateTestToken(
+    "user_alice_clerk_123",
+    "alice@example.com",
+    "Alice",
+    "Johnson",
+    "2h",
+    "https://fake-issuer.clerk.accounts.dev"
+  );
+  const wrongIssuerRes = await testFetch("/api/recipes/my-recipes", {
+    headers: { Authorization: `Bearer ${wrongIssuerToken}` },
+  });
+  assert("Token with wrong issuer claim rejected (401)", wrongIssuerRes.status === 401);
+
+  // Test G: Valid token + fake spoofed header -> authenticated strictly as token subject
   const spoofWithValidTokenRes = await testFetch("/api/recipes/my-recipes", {
     headers: {
       Authorization: `Bearer ${validTokenA}`,
@@ -358,7 +421,7 @@ async function runTests() {
   const corsPreflightRes = await testFetch("/api/recipes", {
     method: "OPTIONS",
     headers: {
-      Origin: "http://localhost:5173",
+      Origin: "https://yummiee.yummiee-api.workers.dev",
       "Access-Control-Request-Method": "POST",
       "Access-Control-Request-Headers": "Authorization, Content-Type",
     },
@@ -366,7 +429,7 @@ async function runTests() {
   assert("CORS preflight returns 204", corsPreflightRes.status === 204);
   assert(
     "CORS preflight allows configured origin",
-    corsPreflightRes.headers.get("access-control-allow-origin") === "http://localhost:5173"
+    corsPreflightRes.headers.get("access-control-allow-origin") === "https://yummiee.yummiee-api.workers.dev"
   );
   assert(
     "CORS preflight sets credentials header",

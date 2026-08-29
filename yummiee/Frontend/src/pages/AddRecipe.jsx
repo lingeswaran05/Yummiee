@@ -131,16 +131,12 @@ function AddRecipe() {
       const rawTime = Number(recipe.time) || 0;
       const totalMinutes = timeUnit === "hr" ? Math.round(rawTime * 60) : Math.round(rawTime);
 
-      let finalImageUrl = recipe.image || imagePreview || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800";
+      let finalImageUrl = recipe.image || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800";
 
       if (imageFile) {
-        try {
-          const uploadRes = await uploadImageApi(imageFile);
-          if (uploadRes?.url) {
-            finalImageUrl = uploadRes.url;
-          }
-        } catch (uploadErr) {
-          console.warn("Could not upload to R2, falling back to preview/default:", uploadErr);
+        const uploadRes = await uploadImageApi(imageFile);
+        if (uploadRes?.url) {
+          finalImageUrl = uploadRes.url;
         }
       }
 

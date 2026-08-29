@@ -31,73 +31,34 @@ function getClerkJwksUrl(env) {
     }
   }
 
-  return "https://measured-honeybee-7159.clerk.accounts.dev/.well-known/jwks.json";
+  return null;
 }
 
 /**
- * Cryptographically verifies a Clerk session JWT.
+ * Cryptographically verifies a Clerk session JWT using Clerk's remote JWKS.
  */
 export async function verifyClerkToken(token, env) {
   if (!token || typeof token !== "string") return null;
 
   try {
-    let payload;
-
-    // 1. If explicit JWT secret/key is provided (for testing or symmetric key)
-    if (env.CLERK_JWT_KEY) {
-      const keyBuffer = new TextEncoder().encode(env.CLERK_JWT_KEY);
-      try {
-        const res = await jwtVerify(token, keyBuffer);
-        payload = res.payload;
-      } catch (jwtKeyErr) {
-        // Fallback to JWKS if token was RS256 signed by Clerk
-        const jwksUrl = getClerkJwksUrl(env);
-        let jwks = jwksCache.get(jwksUrl);
-        if (!jwks) {
-          jwks = createRemoteJWKSet(new URL(jwksUrl));
-          jwksCache.set(jwksUrl, jwks);
-        }
-        const verifyOptions = {};
-        if (env.CLERK_ISSUER) verifyOptions.issuer = env.CLERK_ISSUER;
-        const res = await jwtVerify(token, jwks, verifyOptions);
-        payload = res.payload;
-      }
-    } else if (env.CLERK_SECRET_KEY) {
-      // Cryptographic verification with Clerk Secret Key
-      const keyBuffer = new TextEncoder().encode(env.CLERK_SECRET_KEY);
-      try {
-        const res = await jwtVerify(token, keyBuffer);
-        payload = res.payload;
-      } catch (secErr) {
-        // Fallback to JWKS if token was RS256 signed by Clerk
-        const jwksUrl = getClerkJwksUrl(env);
-        let jwks = jwksCache.get(jwksUrl);
-        if (!jwks) {
-          jwks = createRemoteJWKSet(new URL(jwksUrl));
-          jwksCache.set(jwksUrl, jwks);
-        }
-        const verifyOptions = {};
-        if (env.CLERK_ISSUER) verifyOptions.issuer = env.CLERK_ISSUER;
-        const res = await jwtVerify(token, jwks, verifyOptions);
-        payload = res.payload;
-      }
-    } else {
-      // 2. Standard Clerk JWKS verification
-      const jwksUrl = getClerkJwksUrl(env);
-      let jwks = jwksCache.get(jwksUrl);
-      if (!jwks) {
-        jwks = createRemoteJWKSet(new URL(jwksUrl));
-        jwksCache.set(jwksUrl, jwks);
-      }
-
-      const verifyOptions = {};
-      if (env.CLERK_ISSUER) {
-        verifyOptions.issuer = env.CLERK_ISSUER;
-      }
-
-      const res = await jwtVerify(token, jwks, verifyOptions);
-      payload = res.payload;
+    const jwksUrl = getClerkJwksUrl(env);
+    if (!jwksUrl) {
+      console.error("Clerk JWKS URL is missing in environment bindings");
+      return null;
     }
+
+    let jwks = jwksCache.get(jwksUrl);
+    if (!jwks) {
+      jwks = createRemoteJWKSet(new URL(jwksUrl));
+      jwksCache.set(jwksUrl, jwks);
+    }
+
+    const verifyOptions = {};
+    if (env.CLERK_ISSUER) {
+      verifyOptions.issuer = env.CLERK_ISSUER.replace(/\/$/, "");
+    }
+
+    const { payload } = await jwtVerify(token, jwks, verifyOptions);
 
     if (!payload || !payload.sub) {
       return null;
@@ -119,7 +80,7 @@ export async function verifyClerkToken(token, env) {
       lastName,
     };
   } catch (err) {
-    // JWT verification failed
+    // JWT verification failed (invalid signature, expired, issuer mismatch)
     return null;
   }
 }

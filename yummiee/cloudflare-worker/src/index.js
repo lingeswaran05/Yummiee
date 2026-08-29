@@ -13,7 +13,7 @@ app.use(
   "*",
   cors({
     origin: (origin, c) => {
-      const allowed = c.env.ALLOWED_ORIGIN || "http://localhost:5173";
+      const allowed = c.env.ALLOWED_ORIGIN || "https://yummiee.yummiee-api.workers.dev";
       if (!origin) return null;
       if (allowed === "*") return origin;
       const allowedList = allowed.split(",").map((s) => s.trim());
