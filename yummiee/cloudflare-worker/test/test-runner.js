@@ -93,7 +93,7 @@ d1.exec(migration2);
 const testEnv = {
   DB: d1,
   IMAGES: r2,
-  ALLOWED_ORIGIN: "https://yummiee.yummiee-api.workers.dev",
+  ALLOWED_ORIGIN: "https://yummiee.pages.dev,https://yummiee.yummiee-api.workers.dev,http://localhost:5173",
   CLERK_ISSUER: "https://measured-honeybee-7159.clerk.accounts.dev",
   CLERK_JWKS_URL: "https://measured-honeybee-7159.clerk.accounts.dev/.well-known/jwks.json",
   CLERK_PUBLISHABLE_KEY: "pk_test_bWVhc3VyZWQtaG9uZXliZWUtNzE1OS5jbGVyay5hY2NvdW50cy5kZXYk",
@@ -417,24 +417,62 @@ async function runTests() {
   });
   assert("Disallowed SVG MIME type rejected (400 Bad Request)", badMimeRes.status === 400);
 
-  // Test CORS preflight OPTIONS request
-  const corsPreflightRes = await testFetch("/api/recipes", {
+  // Test CORS preflight OPTIONS request from production Pages origin
+  const corsPreflightPages = await testFetch("/api/recipes", {
     method: "OPTIONS",
     headers: {
-      Origin: "https://yummiee.yummiee-api.workers.dev",
+      Origin: "https://yummiee.pages.dev",
       "Access-Control-Request-Method": "POST",
       "Access-Control-Request-Headers": "Authorization, Content-Type",
     },
   });
-  assert("CORS preflight returns 204", corsPreflightRes.status === 204);
+  assert("CORS preflight for yummiee.pages.dev returns 204", corsPreflightPages.status === 204);
   assert(
-    "CORS preflight allows configured origin",
-    corsPreflightRes.headers.get("access-control-allow-origin") === "https://yummiee.yummiee-api.workers.dev"
+    "CORS preflight sets Access-Control-Allow-Origin to https://yummiee.pages.dev",
+    corsPreflightPages.headers.get("access-control-allow-origin") === "https://yummiee.pages.dev"
   );
   assert(
     "CORS preflight sets credentials header",
-    corsPreflightRes.headers.get("access-control-allow-credentials") === "true"
+    corsPreflightPages.headers.get("access-control-allow-credentials") === "true"
   );
+  assert(
+    "CORS preflight allows Authorization & Content-Type headers",
+    corsPreflightPages.headers.get("access-control-allow-headers")?.includes("Authorization") &&
+    corsPreflightPages.headers.get("access-control-allow-headers")?.includes("Content-Type")
+  );
+
+  // Test CORS preflight on authenticated endpoints (wishlist, shopping-list, images/upload)
+  const corsWishlist = await testFetch("/api/wishlist", {
+    method: "OPTIONS",
+    headers: {
+      Origin: "https://yummiee.pages.dev",
+      "Access-Control-Request-Method": "POST",
+      "Access-Control-Request-Headers": "Authorization, Content-Type",
+    },
+  });
+  assert("CORS preflight for /api/wishlist succeeds without auth (204)", corsWishlist.status === 204);
+  assert("CORS preflight for /api/wishlist has Allow-Origin", corsWishlist.headers.get("access-control-allow-origin") === "https://yummiee.pages.dev");
+
+  const corsImages = await testFetch("/api/images/upload", {
+    method: "OPTIONS",
+    headers: {
+      Origin: "https://yummiee.pages.dev",
+      "Access-Control-Request-Method": "POST",
+      "Access-Control-Request-Headers": "Authorization, Content-Type",
+    },
+  });
+  assert("CORS preflight for /api/images/upload succeeds without auth (204)", corsImages.status === 204);
+  assert("CORS preflight for /api/images/upload has Allow-Origin", corsImages.headers.get("access-control-allow-origin") === "https://yummiee.pages.dev");
+
+  // Test actual GET request contains Access-Control-Allow-Origin
+  const corsGet = await testFetch("/api/recipes", {
+    method: "GET",
+    headers: {
+      Origin: "https://yummiee.pages.dev",
+    },
+  });
+  assert("GET /api/recipes contains Access-Control-Allow-Origin for Pages", corsGet.headers.get("access-control-allow-origin") === "https://yummiee.pages.dev");
+  assert("GET /api/recipes contains Access-Control-Allow-Credentials", corsGet.headers.get("access-control-allow-credentials") === "true");
 
   // User B creates own data
   const createRecipeBRes = await testFetch("/api/recipes", {

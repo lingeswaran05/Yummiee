@@ -13,13 +13,34 @@ app.use(
   "*",
   cors({
     origin: (origin, c) => {
-      const allowed = c.env.ALLOWED_ORIGIN || "https://yummiee.yummiee-api.workers.dev";
       if (!origin) return null;
-      if (allowed === "*") return origin;
-      const allowedList = allowed.split(",").map((s) => s.trim());
-      if (allowedList.includes(origin)) {
+
+      const configuredAllowed = c.env.ALLOWED_ORIGIN || "https://yummiee.pages.dev";
+      if (configuredAllowed === "*") return origin;
+
+      const allowedList = configuredAllowed
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+
+      const lowerOrigin = origin.toLowerCase();
+
+      // Check configured origins list
+      if (allowedList.includes(lowerOrigin)) {
         return origin;
       }
+
+      // Automatically allow production Cloudflare Pages domains & previews
+      if (
+        lowerOrigin === "https://yummiee.pages.dev" ||
+        lowerOrigin.endsWith(".pages.dev") ||
+        lowerOrigin === "https://yummiee.yummiee-api.workers.dev" ||
+        lowerOrigin.startsWith("http://localhost:") ||
+        lowerOrigin.startsWith("http://127.0.0.1:")
+      ) {
+        return origin;
+      }
+
       return null;
     },
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
