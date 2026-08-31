@@ -57,7 +57,7 @@ function Sidebar() {
         <button
           type="button"
           onClick={() => navigate("/dashboard")}
-          className="flex items-center gap-2 text-left"
+          className="flex items-center gap-2 text-left transition hover:opacity-85"
         >
           <ChefHat className="h-7 w-7 text-primary" />
           <span className="text-xl font-bold text-primary">
@@ -94,7 +94,7 @@ function Sidebar() {
       <div className="border-t border-[#e4e2e1] p-6">
         <Show when="signed-in">
           <div className="flex items-center gap-3 rounded-xl bg-[#faf8f7] p-3 border border-[#e4e2e1]">
-            <UserButton afterSignOutUrl={window.location.origin + window.location.pathname + "#/"} />
+            <UserButton />
             <div className="flex flex-col overflow-hidden">
               <span className="truncate text-sm font-semibold text-text-primary">
                 {user?.fullName || user?.firstName || "My Profile"}

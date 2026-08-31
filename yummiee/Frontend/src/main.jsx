@@ -11,12 +11,15 @@ if (!PUBLISHABLE_KEY) {
   console.warn("Missing VITE_CLERK_PUBLISHABLE_KEY in env");
 }
 
-const redirectUrl = window.location.origin + window.location.pathname + "#/";
-
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     {PUBLISHABLE_KEY ? (
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl={redirectUrl}>
+      <ClerkProvider
+        publishableKey={PUBLISHABLE_KEY}
+        afterSignOutUrl="/"
+        signInFallbackRedirectUrl="/#/dashboard"
+        signUpFallbackRedirectUrl="/#/dashboard"
+      >
         <ApiAuthBridge>
           <App />
         </ApiAuthBridge>

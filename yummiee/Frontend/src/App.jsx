@@ -1,4 +1,5 @@
 import { useAuth } from "@clerk/react";
+import { useEffect, useState } from "react";
 import { HashRouter, Navigate, Routes, Route } from "react-router-dom";
 
 import { WishlistProvider } from "./context/WishlistContext";
@@ -18,17 +19,28 @@ import MyRecipes from "./pages/MyRecipes";
 
 function ProtectedRoute({ children }) {
   const { isLoaded, isSignedIn } = useAuth();
+  const [authTimedOut, setAuthTimedOut] = useState(false);
 
-  if (!isLoaded) {
+  useEffect(() => {
+    // 3.5s timeout safeguard against infinite auth loading
+    const timer = setTimeout(() => {
+      setAuthTimedOut(true);
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isLoaded && !authTimedOut) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm font-semibold text-text-secondary">Loading...</p>
+          <p className="text-sm font-semibold text-text-secondary">Loading Yummiee...</p>
         </div>
       </div>
     );
   }
+
   return isSignedIn ? children : <Navigate to="/" replace />;
 }
 
