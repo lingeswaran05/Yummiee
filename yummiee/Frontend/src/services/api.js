@@ -20,11 +20,32 @@ export function setApiAuth({ userId = null, getToken = null } = {}) {
 
 async function getAuthHeaders() {
   let token = null;
-  if (currentAuth.getToken) {
-    try {
-      token = await currentAuth.getToken();
-    } catch (e) {
-      console.warn("Could not retrieve Clerk token:", e);
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (currentAuth.getToken) {
+      try {
+        token = await currentAuth.getToken();
+      } catch (e) {
+        console.warn("Could not retrieve Clerk token:", e);
+      }
+    }
+
+    if (!token && typeof window !== "undefined" && window.Clerk?.session) {
+      try {
+        token = await window.Clerk.session.getToken();
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    if (token) break;
+
+    // If user is authenticated but token is resolving, wait briefly
+    const isUserActive = currentAuth.userId || (typeof window !== "undefined" && window.Clerk?.user);
+    if (isUserActive && attempt < 2) {
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    } else {
+      break;
     }
   }
 

@@ -9,7 +9,7 @@ export function WishlistProvider({ children }) {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const loadWishlist = async () => {
+  const loadWishlist = async (retryCount = 0) => {
     if (!isSignedIn) {
       setWishlist([]);
       setLoading(false);
@@ -19,10 +19,17 @@ export function WishlistProvider({ children }) {
     try {
       setLoading(true);
       const data = await fetchWishlist();
-      setWishlist(data || []);
+      if (Array.isArray(data)) {
+        setWishlist(data);
+      }
     } catch (err) {
       console.warn("Could not fetch wishlist from backend, using empty state:", err);
-      setWishlist([]);
+      if (retryCount < 2 && isSignedIn) {
+        setTimeout(() => {
+          loadWishlist(retryCount + 1);
+        }, 350);
+        return;
+      }
     } finally {
       setLoading(false);
     }

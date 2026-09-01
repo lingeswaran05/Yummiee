@@ -20,7 +20,7 @@ function Login() {
 
   if (!isLoaded) {
     return (
-      <main className="min-h-screen bg-[#faf8f7] px-5 py-10 flex flex-col items-center justify-center">
+      <main className="flex min-h-screen w-full flex-col items-center justify-center bg-[#faf8f7] px-4 py-8">
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           <p className="text-sm font-semibold text-text-secondary">Loading authentication...</p>
@@ -34,15 +34,15 @@ function Login() {
   }
 
   return (
-    <main className="min-h-screen bg-[#faf8f7] px-5 py-10">
-      <div className="mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-[560px] flex-col items-center justify-center">
+    <main className="flex min-h-screen w-full flex-col items-center justify-center bg-[#faf8f7] px-4 py-8">
+      <div className="flex w-full max-w-[480px] flex-col items-center justify-center">
         {/* Brand */}
-        <div className="mb-6 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 shadow-xs">
             <ChefHat className="h-6 w-6 text-primary" />
           </div>
 
-          <h1 className="mt-3 text-3xl font-bold text-primary">
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-primary">
             Yummiee
           </h1>
 
@@ -62,7 +62,7 @@ function Login() {
         </div>
 
         {isSignedOutParam && (
-          <div role="status" className="mt-5 text-center text-sm font-medium text-green-700 bg-green-50 border border-green-200 px-4 py-2 rounded-xl">
+          <div role="status" className="mt-5 w-full text-center text-sm font-medium text-green-700 bg-green-50 border border-green-200 px-4 py-2.5 rounded-xl">
             You have signed out successfully.
           </div>
         )}

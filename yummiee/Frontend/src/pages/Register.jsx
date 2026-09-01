@@ -18,20 +18,20 @@ function Register() {
   }
 
   return (
-    <main className="min-h-screen bg-[#faf8f7] px-5 py-10">
+    <main className="flex min-h-screen w-full flex-col items-center justify-center bg-[#faf8f7] px-4 py-8">
       <Show when="signed-in">
         <Navigate to="/dashboard" replace />
       </Show>
 
       <Show when="signed-out">
-        <div className="mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-[620px] flex-col items-center justify-center">
+        <div className="flex w-full max-w-[500px] flex-col items-center justify-center">
           {/* Brand */}
-          <div className="mb-6 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+          <div className="mb-6 flex flex-col items-center text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 shadow-xs">
               <ChefHat className="h-6 w-6 text-primary" />
             </div>
 
-            <h1 className="mt-3 text-3xl font-bold text-primary">
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-primary">
               Yummiee
             </h1>
 

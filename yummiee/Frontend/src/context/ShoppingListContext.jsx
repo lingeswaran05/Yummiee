@@ -15,7 +15,7 @@ export function ShoppingListProvider({ children }) {
   const [shoppingList, setShoppingList] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const loadShoppingList = async () => {
+  const loadShoppingList = async (retryCount = 0) => {
     if (!isSignedIn) {
       setShoppingList([]);
       setLoading(false);
@@ -25,10 +25,18 @@ export function ShoppingListProvider({ children }) {
     try {
       setLoading(true);
       const data = await fetchShoppingList();
-      setShoppingList(data || []);
+      if (Array.isArray(data)) {
+        setShoppingList(data);
+      }
     } catch (err) {
       console.warn("Could not fetch shopping list from backend:", err);
-      setShoppingList([]);
+      // If unauthorized on first mount, retry once after token finishes resolving
+      if (retryCount < 2 && isSignedIn) {
+        setTimeout(() => {
+          loadShoppingList(retryCount + 1);
+        }, 350);
+        return;
+      }
     } finally {
       setLoading(false);
     }
