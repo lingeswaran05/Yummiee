@@ -12,9 +12,6 @@ export const recipeDetails = {
     difficulty: "Easy",
     servings: 2,
 
-    rating: 4.8,
-    reviews: 124,
-
     ingredients: [
       {
         id: 1,
@@ -123,9 +120,6 @@ export const recipeDetails = {
     difficulty: "Easy",
     servings: 4,
 
-    rating: 4.7,
-    reviews: 98,
-
     ingredients: [
       {
         id: 1,
@@ -221,9 +215,6 @@ export const recipeDetails = {
     time: 40,
     difficulty: "Medium",
     servings: 4,
-
-    rating: 4.9,
-    reviews: 187,
 
     ingredients: [
       {

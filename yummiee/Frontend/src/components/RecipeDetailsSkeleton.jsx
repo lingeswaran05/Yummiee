@@ -27,9 +27,6 @@ function RecipeDetailsSkeleton() {
               <div className="h-4 w-2/3 rounded bg-[#f1ecea]" />
             </div>
 
-            {/* Rating Skeleton */}
-            <div className="mt-5 h-5 w-36 rounded bg-[#f1ecea]" />
-
             {/* Stat Cards Skeleton */}
             <div className="mt-6 flex gap-3">
               <div className="h-14 w-28 rounded-xl bg-[#f1ecea]" />

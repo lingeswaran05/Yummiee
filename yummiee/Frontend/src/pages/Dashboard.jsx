@@ -7,6 +7,41 @@ import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
 import SurpriseMeModal from "../components/SurpriseMeModal";
 import { fetchRecipes, fetchRecipeSuggestion } from "../services/api";
 
+function getTimeBasedMealPeriod() {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 11) {
+    return {
+      category: "Breakfast",
+      title: "Good Morning",
+      subtitle: "What's good for breakfast right now",
+    };
+  } else if (hour >= 11 && hour < 16) {
+    return {
+      category: "Lunch",
+      title: "Good Afternoon",
+      subtitle: "What's good for lunch right now",
+    };
+  } else if (hour >= 16 && hour < 18) {
+    return {
+      category: "Snacks",
+      title: "Late Afternoon Pick-Me-Up",
+      subtitle: "What's good for snacks right now",
+    };
+  } else if (hour >= 18 && hour < 22) {
+    return {
+      category: "Dinner",
+      title: "Good Evening",
+      subtitle: "What's good for dinner right now",
+    };
+  } else {
+    return {
+      category: "Dessert",
+      title: "Late Night Treat",
+      subtitle: "What's good for dessert right now",
+    };
+  }
+}
+
 function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -28,6 +63,8 @@ function Dashboard() {
     "Snacks",
     "Vegetarian",
   ];
+
+  const mealPeriod = getTimeBasedMealPeriod();
 
   useEffect(() => {
     let isMounted = true;
@@ -94,6 +131,22 @@ function Dashboard() {
     setSelectedCategory("All");
     setSortOption("Recently Added");
   };
+
+  // Find a single deterministic recommendation for the current time
+  const recommendedRecipe = (() => {
+    if (!recipes || recipes.length === 0) return null;
+    const match = recipes.find(
+      (r) => r.category && r.category.trim().toLowerCase() === mealPeriod.category.toLowerCase()
+    );
+    // Fall back gracefully to the first available recipe if no meal category matches
+    return match || recipes[0] || null;
+  })();
+
+  // Filter out the recommended recipe from All Recipes when in default view to prevent duplication
+  const isDefaultView = !searchTerm && selectedCategory === "All";
+  const displayedAllRecipes = isDefaultView && recommendedRecipe
+    ? recipes.filter((r) => r.id !== recommendedRecipe.id)
+    : recipes;
 
   return (
     <MainLayout>
@@ -165,28 +218,39 @@ function Dashboard() {
           )}
         </section>
 
-        {/* ================= RECENTLY ADDED ================= */}
+        {/* ================= TIME-BASED RECOMMENDATION ================= */}
         {!searchTerm && selectedCategory === "All" && (
           <section className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Recently Added</h2>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-primary" />
+                  <h2 className="text-xl font-bold text-text-primary">
+                    {mealPeriod.title} • What's Good for {mealPeriod.category}?
+                  </h2>
+                </div>
+                <p className="mt-0.5 text-sm text-text-secondary">
+                  {mealPeriod.subtitle}
+                </p>
+              </div>
+
               <button
                 type="button"
                 onClick={() =>
                   document.getElementById("all-recipes")?.scrollIntoView({ behavior: "smooth" })
                 }
-                className="text-sm font-semibold text-primary hover:text-primary-dark"
+                className="text-sm font-semibold text-primary transition hover:text-primary-dark"
               >
                 See All
               </button>
             </div>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {loading
-                ? Array.from({ length: 4 }, (_, index) => <RecipeCardSkeleton key={index} />)
-                : recipes.slice(0, 4).map((recipe) => (
-                    <RecipeCard key={recipe.id} recipe={recipe} />
-                  ))}
+              {loading ? (
+                <RecipeCardSkeleton />
+              ) : recommendedRecipe ? (
+                <RecipeCard recipe={recommendedRecipe} />
+              ) : null}
             </div>
           </section>
         )}
@@ -242,7 +306,6 @@ function Dashboard() {
             >
               <option>Recently Added</option>
               <option>Quickest</option>
-              <option>Most Liked</option>
             </select>
           </div>
 
@@ -252,9 +315,9 @@ function Dashboard() {
                 <RecipeCardSkeleton key={index} />
               ))}
             </div>
-          ) : recipes.length > 0 ? (
+          ) : displayedAllRecipes.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {recipes.map((recipe) => (
+              {displayedAllRecipes.map((recipe) => (
                 <RecipeCard key={recipe.id} recipe={recipe} />
               ))}
             </div>

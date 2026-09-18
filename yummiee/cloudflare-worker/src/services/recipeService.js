@@ -66,8 +66,6 @@ export async function populateRecipeDetails(db, recipeRows) {
     difficulty: r.difficulty,
     servings: r.servings,
     image: r.image_url,
-    rating: r.rating ?? 4.5,
-    reviews: r.review_count ?? 0,
     notes: r.notes ?? "",
     ingredients: ingredientsByRecipe.get(r.id) || [],
     instructions: instructionsByRecipe.get(r.id) || [],
@@ -97,8 +95,6 @@ export async function getRecipes(db, search, category, difficulty, sort) {
 
   if (sort && sort.toLowerCase() === "quickest") {
     query += " ORDER BY CASE WHEN time_minutes IS NULL THEN 999999 ELSE time_minutes END ASC, id DESC";
-  } else if (sort && sort.toLowerCase() === "most liked") {
-    query += " ORDER BY CASE WHEN rating IS NULL THEN 0 ELSE rating END DESC, review_count DESC, id DESC";
   } else {
     query += " ORDER BY id DESC";
   }
@@ -306,11 +302,6 @@ export async function matchRecipesByIngredients(db, request) {
     if (r1.missingIngredients.length !== r2.missingIngredients.length) {
       return r1.missingIngredients.length - r2.missingIngredients.length;
     }
-    const rating1 = r1.recipe.rating ?? 0.0;
-    const rating2 = r2.recipe.rating ?? 0.0;
-    if (rating2 !== rating1) {
-      return rating2 - rating1;
-    }
     return (r1.recipe.id || 0) - (r2.recipe.id || 0);
   });
 
@@ -321,7 +312,7 @@ export async function createRecipe(db, dto, userId) {
   const insertRecipe = await db
     .prepare(
       `INSERT INTO recipes (user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 4.5, 1, ?, datetime('now'), datetime('now')) RETURNING id`
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, ?, datetime('now'), datetime('now')) RETURNING id`
     )
     .bind(
       userId,

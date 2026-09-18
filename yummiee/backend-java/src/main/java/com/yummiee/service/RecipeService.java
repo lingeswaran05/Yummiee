@@ -25,9 +25,6 @@ public class RecipeService {
 
         if ("Quickest".equalsIgnoreCase(sort)) {
             recipes.sort(Comparator.comparing(r -> r.getTimeMinutes() != null ? r.getTimeMinutes() : Integer.MAX_VALUE));
-        } else if ("Most Liked".equalsIgnoreCase(sort)) {
-            recipes.sort((r1, r2) -> Double.compare(r2.getRating() != null ? r2.getRating() : 0.0,
-                    r1.getRating() != null ? r1.getRating() : 0.0));
         } else {
             recipes.sort((r1, r2) -> r2.getId().compareTo(r1.getId()));
         }
@@ -220,11 +217,6 @@ public class RecipeService {
             int cmpMissing = Integer.compare(r1.getMissingIngredients().size(), r2.getMissingIngredients().size());
             if (cmpMissing != 0) return cmpMissing;
 
-            double rating1 = r1.getRecipe().getRating() != null ? r1.getRecipe().getRating() : 0.0;
-            double rating2 = r2.getRecipe().getRating() != null ? r2.getRecipe().getRating() : 0.0;
-            int cmpRating = Double.compare(rating2, rating1);
-            if (cmpRating != 0) return cmpRating;
-
             return r1.getRecipe().getId().compareTo(r2.getRecipe().getId());
         });
 
@@ -283,8 +275,6 @@ public class RecipeService {
                 .difficulty(dto.getDifficulty() != null ? dto.getDifficulty() : "Easy")
                 .servings(dto.getServings() != null ? dto.getServings() : 2)
                 .imageUrl(dto.getImage() != null && !dto.getImage().trim().isEmpty() ? dto.getImage() : "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800")
-                .rating(4.5)
-                .reviewCount(1)
                 .notes(dto.getNotes() != null ? dto.getNotes() : "")
                 .ingredients(new ArrayList<>())
                 .instructions(new ArrayList<>())
@@ -426,8 +416,6 @@ public class RecipeService {
                 .difficulty(recipe.getDifficulty())
                 .servings(recipe.getServings())
                 .image(recipe.getImageUrl())
-                .rating(recipe.getRating() != null ? recipe.getRating() : 4.5)
-                .reviews(recipe.getReviewCount() != null ? recipe.getReviewCount() : 0)
                 .notes(recipe.getNotes() != null ? recipe.getNotes() : "")
                 .ingredients(ingredientDTOs)
                 .instructions(instructionDTOs)

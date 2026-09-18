@@ -122,7 +122,6 @@ public class Recipe {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
-        if (rating == null) rating = 4.5;
         if (reviewCount == null) reviewCount = 0;
     }
 

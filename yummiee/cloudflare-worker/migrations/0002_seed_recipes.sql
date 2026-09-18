@@ -3,7 +3,7 @@
 
 -- Recipe 1: Creamy Tuscan Garlic Chicken
 INSERT OR IGNORE INTO recipes (id, user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes)
-VALUES (1, NULL, 'Creamy Tuscan Garlic Chicken', 'Tender chicken breasts in a rich, creamy sun-dried tomato and spinach sauce. Perfect for a cozy weeknight dinner.', 'Dinner', 30, 'Easy', 4, 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800', 4.8, 42, 'Serve over fettuccine or with crusty garlic bread to soak up the creamy sauce.');
+VALUES (1, NULL, 'Creamy Tuscan Garlic Chicken', 'Tender chicken breasts in a rich, creamy sun-dried tomato and spinach sauce. Perfect for a cozy weeknight dinner.', 'Dinner', 30, 'Easy', 4, 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=800', NULL, 0, 'Serve over fettuccine or with crusty garlic bread to soak up the creamy sauce.');
 
 INSERT OR IGNORE INTO ingredients (recipe_id, name, quantity, unit) VALUES
 (1, 'Chicken Breasts', 2.0, 'large'),
@@ -22,7 +22,7 @@ INSERT OR IGNORE INTO nutrition (recipe_id, calories, protein, carbs, fat) VALUE
 
 -- Recipe 2: Avocado Toast with Poached Eggs
 INSERT OR IGNORE INTO recipes (id, user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes)
-VALUES (2, NULL, 'Avocado Toast with Poached Eggs', 'Artisanal sourdough topped with smashed avocado, perfectly poached eggs, microgreens, and red pepper flakes.', 'Breakfast', 15, 'Easy', 2, 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800', 4.7, 31, 'Use fresh organic eggs for easier poaching.');
+VALUES (2, NULL, 'Avocado Toast with Poached Eggs', 'Artisanal sourdough topped with smashed avocado, perfectly poached eggs, microgreens, and red pepper flakes.', 'Breakfast', 15, 'Easy', 2, 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=800', NULL, 0, 'Use fresh organic eggs for easier poaching.');
 
 INSERT OR IGNORE INTO ingredients (recipe_id, name, quantity, unit) VALUES
 (2, 'Sourdough Bread', 2.0, 'slices'),
@@ -38,7 +38,7 @@ INSERT OR IGNORE INTO nutrition (recipe_id, calories, protein, carbs, fat) VALUE
 
 -- Recipe 3: Creamy Garlic Pasta
 INSERT OR IGNORE INTO recipes (id, user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes)
-VALUES (3, NULL, 'Creamy Garlic Pasta', 'A rich and creamy garlic pasta that is quick, comforting, and perfect for a cozy dinner at home.', 'Dinner', 20, 'Easy', 2, 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=1400&q=85', 4.8, 124, 'For a lighter version, you can replace some of the heavy cream with milk. Add grilled chicken or mushrooms for extra protein.');
+VALUES (3, NULL, 'Creamy Garlic Pasta', 'A rich and creamy garlic pasta that is quick, comforting, and perfect for a cozy dinner at home.', 'Dinner', 20, 'Easy', 2, 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=1400&q=85', NULL, 0, 'For a lighter version, you can replace some of the heavy cream with milk. Add grilled chicken or mushrooms for extra protein.');
 
 INSERT OR IGNORE INTO ingredients (recipe_id, name, quantity, unit) VALUES
 (3, 'Pasta', 200.0, 'g'),
@@ -62,7 +62,7 @@ INSERT OR IGNORE INTO nutrition (recipe_id, calories, protein, carbs, fat) VALUE
 
 -- Recipe 4: Tomato Rice
 INSERT OR IGNORE INTO recipes (id, user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes)
-VALUES (4, NULL, 'Tomato Rice', 'Simple, flavorful tomato rice made with aromatic spices and fresh tomatoes.', 'Lunch', 30, 'Easy', 4, 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=1400&q=85', 4.7, 98, 'You can add peas, carrots, capsicum, or leftover vegetables to make this more nutritious.');
+VALUES (4, NULL, 'Tomato Rice', 'Simple, flavorful tomato rice made with aromatic spices and fresh tomatoes.', 'Lunch', 30, 'Easy', 4, 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=1400&q=85', NULL, 0, 'You can add peas, carrots, capsicum, or leftover vegetables to make this more nutritious.');
 
 INSERT OR IGNORE INTO ingredients (recipe_id, name, quantity, unit) VALUES
 (4, 'Rice', 2.0, 'cups'),
@@ -84,7 +84,7 @@ INSERT OR IGNORE INTO nutrition (recipe_id, calories, protein, carbs, fat) VALUE
 
 -- Recipe 5: Vegetable Biryani
 INSERT OR IGNORE INTO recipes (id, user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes)
-VALUES (5, NULL, 'Vegetable Biryani', 'Fragrant basmati rice layered with colorful vegetables, herbs, and aromatic biryani spices.', 'Dinner', 40, 'Medium', 4, 'https://images.unsplash.com/photo-1631515242808-497c3fbd3972?auto=format&fit=crop&w=1400&q=85', 4.9, 187, 'For extra flavor, add fried onions, saffron milk, or roasted cashews before serving.');
+VALUES (5, NULL, 'Vegetable Biryani', 'Fragrant basmati rice layered with colorful vegetables, herbs, and aromatic biryani spices.', 'Dinner', 40, 'Medium', 4, 'https://images.unsplash.com/photo-1631515242808-497c3fbd3972?auto=format&fit=crop&w=1400&q=85', NULL, 0, 'For extra flavor, add fried onions, saffron milk, or roasted cashews before serving.');
 
 INSERT OR IGNORE INTO ingredients (recipe_id, name, quantity, unit) VALUES
 (5, 'Basmati rice', 2.0, 'cups'),
@@ -106,7 +106,7 @@ INSERT OR IGNORE INTO nutrition (recipe_id, calories, protein, carbs, fat) VALUE
 
 -- Recipe 6: Fluffy Pancakes
 INSERT OR IGNORE INTO recipes (id, user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes)
-VALUES (6, NULL, 'Fluffy Pancakes', 'Golden, fluffy American-style breakfast pancakes served with maple syrup and fresh berries.', 'Breakfast', 15, 'Easy', 2, 'https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=800&q=80', 4.9, 88, 'Do not overmix the batter to keep them light and airy.');
+VALUES (6, NULL, 'Fluffy Pancakes', 'Golden, fluffy American-style breakfast pancakes served with maple syrup and fresh berries.', 'Breakfast', 15, 'Easy', 2, 'https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=800&q=80', NULL, 0, 'Do not overmix the batter to keep them light and airy.');
 
 INSERT OR IGNORE INTO ingredients (recipe_id, name, quantity, unit) VALUES
 (6, 'All-purpose Flour', 1.5, 'cups'),
@@ -127,7 +127,7 @@ INSERT OR IGNORE INTO nutrition (recipe_id, calories, protein, carbs, fat) VALUE
 
 -- Recipe 7: Spicy Chicken Curry
 INSERT OR IGNORE INTO recipes (id, user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes)
-VALUES (7, NULL, 'Spicy Chicken Curry', 'A hearty and aromatic chicken curry simmered with onions, garlic, ginger, and rich Indian spices.', 'Dinner', 45, 'Medium', 4, 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80', 4.8, 140, 'Pairs amazingly with steamed basmati rice or hot garlic naan.');
+VALUES (7, NULL, 'Spicy Chicken Curry', 'A hearty and aromatic chicken curry simmered with onions, garlic, ginger, and rich Indian spices.', 'Dinner', 45, 'Medium', 4, 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80', NULL, 0, 'Pairs amazingly with steamed basmati rice or hot garlic naan.');
 
 INSERT OR IGNORE INTO ingredients (recipe_id, name, quantity, unit) VALUES
 (7, 'Chicken', 500.0, 'g'),
@@ -147,7 +147,7 @@ INSERT OR IGNORE INTO nutrition (recipe_id, calories, protein, carbs, fat) VALUE
 
 -- Recipe 8: Rich Chocolate Brownie
 INSERT OR IGNORE INTO recipes (id, user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes)
-VALUES (8, NULL, 'Rich Chocolate Brownie', 'Fudgy, decadent dark chocolate brownies with a glossy crackly top.', 'Dessert', 50, 'Easy', 8, 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80', 4.9, 210, 'Enjoy warm with a scoop of vanilla ice cream.');
+VALUES (8, NULL, 'Rich Chocolate Brownie', 'Fudgy, decadent dark chocolate brownies with a glossy crackly top.', 'Dessert', 50, 'Easy', 8, 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80', NULL, 0, 'Enjoy warm with a scoop of vanilla ice cream.');
 
 INSERT OR IGNORE INTO ingredients (recipe_id, name, quantity, unit) VALUES
 (8, 'Dark Chocolate', 200.0, 'g'),

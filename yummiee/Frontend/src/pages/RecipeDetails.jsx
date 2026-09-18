@@ -7,7 +7,6 @@ import {
   Minus,
   Plus,
   ShoppingCart,
-  Star,
   Users,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
@@ -172,17 +171,6 @@ function RecipeDetails() {
             <p className="mt-5 text-base leading-7 text-text-secondary sm:text-lg">
               {recipe.description}
             </p>
-
-            <div className="mt-5 flex items-center gap-2">
-              <div className="flex items-center gap-1 text-[#E8A317]">
-                <Star className="h-5 w-5" fill="currentColor" />
-                <span className="font-bold">{recipe.rating || 4.5}</span>
-              </div>
-
-              <span className="text-sm text-text-secondary">
-                ({recipe.reviews || 0} reviews)
-              </span>
-            </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
               <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 shadow-sm">

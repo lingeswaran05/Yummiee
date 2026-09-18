@@ -120,7 +120,8 @@
 * **Features**:
   - Live debounced search querying recipe titles and descriptions.
   - Category filters ("All", "Breakfast", "Lunch", "Dinner", "Dessert", "Snacks", "Vegetarian").
-  - Sorting options ("Recently Added", "Quickest", "Most Liked").
+  - Time-based meal recommendations matching current time of day without duplicate recipes.
+  - Sorting options ("Recently Added", "Quickest").
   - Skeleton loading states and instant Stale-While-Revalidate caching.
 
 ### 4.3 Smart Meal Engine ("Surprise Me")
