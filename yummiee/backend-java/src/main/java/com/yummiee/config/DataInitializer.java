@@ -33,6 +33,22 @@ public class DataInitializer implements CommandLineRunner {
             recipeRepository.saveAll(legacySeedRecipes);
         }
 
+        // Backfill foodType for existing recipes where it is null/empty
+        List<Recipe> unclassified = recipeRepository.findAll().stream()
+                .filter(recipe -> recipe.getFoodType() == null || recipe.getFoodType().trim().isEmpty())
+                .toList();
+        if (!unclassified.isEmpty()) {
+            for (Recipe r : unclassified) {
+                String n = r.getName() != null ? r.getName().toLowerCase() : "";
+                if (n.contains("chicken") || n.contains("meat") || n.contains("fish") || n.contains("prawn") || n.contains("mutton") || n.contains("beef") || n.contains("pork")) {
+                    r.setFoodType("non-vegetarian");
+                } else {
+                    r.setFoodType("vegetarian");
+                }
+            }
+            recipeRepository.saveAll(unclassified);
+        }
+
         if (recipeRepository.count() == 0) {
             System.out.println("Seeding default recipes into Java Spring Boot Database...");
 
@@ -42,6 +58,7 @@ public class DataInitializer implements CommandLineRunner {
                     .name("Creamy Tuscan Garlic Chicken")
                     .description("Tender chicken breasts in a rich, creamy sun-dried tomato and spinach sauce. Perfect for a cozy weeknight dinner.")
                     .category("Dinner")
+                    .foodType("non-vegetarian")
                     .timeMinutes(30)
                     .difficulty("Easy")
                     .servings(4)
@@ -70,6 +87,7 @@ public class DataInitializer implements CommandLineRunner {
                     .name("Avocado Toast with Poached Eggs")
                     .description("Artisanal sourdough topped with smashed avocado, perfectly poached eggs, microgreens, and red pepper flakes.")
                     .category("Breakfast")
+                    .foodType("vegetarian")
                     .timeMinutes(15)
                     .difficulty("Easy")
                     .servings(2)

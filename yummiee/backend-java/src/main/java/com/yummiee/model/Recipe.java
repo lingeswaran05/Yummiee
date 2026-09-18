@@ -24,6 +24,9 @@ public class Recipe {
 
     private String category;
 
+    @Column(name = "food_type")
+    private String foodType;
+
     @Column(name = "time_minutes")
     private Integer timeMinutes;
 
@@ -60,7 +63,7 @@ public class Recipe {
 
     public Recipe() {}
 
-    public Recipe(Long id, Long userId, String name, String description, String category, Integer timeMinutes,
+    public Recipe(Long id, Long userId, String name, String description, String category, String foodType, Integer timeMinutes,
                   String difficulty, Integer servings, String imageUrl, Double rating, Integer reviewCount,
                   String notes, LocalDateTime createdAt, LocalDateTime updatedAt, List<Ingredient> ingredients,
                   List<Instruction> instructions, Nutrition nutrition) {
@@ -69,6 +72,7 @@ public class Recipe {
         this.name = name;
         this.description = description;
         this.category = category;
+        this.foodType = foodType;
         this.timeMinutes = timeMinutes;
         this.difficulty = difficulty;
         this.servings = servings;
@@ -93,6 +97,8 @@ public class Recipe {
     public void setDescription(String description) { this.description = description; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+    public String getFoodType() { return foodType; }
+    public void setFoodType(String foodType) { this.foodType = foodType; }
     public Integer getTimeMinutes() { return timeMinutes; }
     public void setTimeMinutes(Integer timeMinutes) { this.timeMinutes = timeMinutes; }
     public String getDifficulty() { return difficulty; }
@@ -123,6 +129,7 @@ public class Recipe {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
         if (reviewCount == null) reviewCount = 0;
+        if (foodType == null || foodType.trim().isEmpty()) foodType = "vegetarian";
     }
 
     @PreUpdate
@@ -138,6 +145,7 @@ public class Recipe {
         private String name;
         private String description;
         private String category;
+        private String foodType;
         private Integer timeMinutes;
         private String difficulty;
         private Integer servings;
@@ -156,6 +164,7 @@ public class Recipe {
         public Builder name(String name) { this.name = name; return this; }
         public Builder description(String description) { this.description = description; return this; }
         public Builder category(String category) { this.category = category; return this; }
+        public Builder foodType(String foodType) { this.foodType = foodType; return this; }
         public Builder timeMinutes(Integer timeMinutes) { this.timeMinutes = timeMinutes; return this; }
         public Builder difficulty(String difficulty) { this.difficulty = difficulty; return this; }
         public Builder servings(Integer servings) { this.servings = servings; return this; }
@@ -170,7 +179,7 @@ public class Recipe {
         public Builder nutrition(Nutrition nutrition) { this.nutrition = nutrition; return this; }
 
         public Recipe build() {
-            return new Recipe(id, userId, name, description, category, timeMinutes, difficulty, servings,
+            return new Recipe(id, userId, name, description, category, foodType, timeMinutes, difficulty, servings,
                     imageUrl, rating, reviewCount, notes, createdAt, updatedAt, ingredients, instructions, nutrition);
         }
     }

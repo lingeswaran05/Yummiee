@@ -8,10 +8,11 @@ export const recipesRouter = new Hono();
 recipesRouter.get("/", async (c) => {
   const search = c.req.query("search");
   const category = c.req.query("category");
+  const foodType = c.req.query("foodType");
   const difficulty = c.req.query("difficulty");
   const sort = c.req.query("sort");
 
-  const recipes = await recipeService.getRecipes(c.env.DB, search, category, difficulty, sort);
+  const recipes = await recipeService.getRecipes(c.env.DB, search, category, difficulty, sort, foodType);
   return c.json(recipes);
 });
 

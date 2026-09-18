@@ -6,7 +6,7 @@ import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
 import { fetchMyRecipes, deleteRecipe } from "../services/api";
 import { formatTime } from "../utils/formatTime";
 
-const CATEGORIES = ["All", "Breakfast", "Lunch", "Dinner", "Dessert", "Snacks", "Vegetarian"];
+const CATEGORIES = ["All", "Breakfast", "Lunch", "Dinner", "Dessert", "Snacks"];
 
 function MyRecipes() {
   const navigate = useNavigate();

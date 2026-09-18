@@ -7,6 +7,7 @@ public class RecipeDTO {
     private String name;
     private String description;
     private String category;
+    private String foodType;
     private Integer time;
     private String difficulty;
     private Integer servings;
@@ -20,7 +21,7 @@ public class RecipeDTO {
 
     public RecipeDTO() {}
 
-    public RecipeDTO(Long id, String name, String description, String category, Integer time,
+    public RecipeDTO(Long id, String name, String description, String category, String foodType, Integer time,
                      String difficulty, Integer servings, String image, Double rating, Integer reviews,
                      String notes, List<IngredientDTO> ingredients, List<InstructionDTO> instructions,
                      NutritionDTO nutrition) {
@@ -28,6 +29,7 @@ public class RecipeDTO {
         this.name = name;
         this.description = description;
         this.category = category;
+        this.foodType = foodType;
         this.time = time;
         this.difficulty = difficulty;
         this.servings = servings;
@@ -48,6 +50,8 @@ public class RecipeDTO {
     public void setDescription(String description) { this.description = description; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+    public String getFoodType() { return foodType; }
+    public void setFoodType(String foodType) { this.foodType = foodType; }
     public Integer getTime() { return time; }
     public void setTime(Integer time) { this.time = time; }
     public String getDifficulty() { return difficulty; }
@@ -76,6 +80,7 @@ public class RecipeDTO {
         private String name;
         private String description;
         private String category;
+        private String foodType;
         private Integer time;
         private String difficulty;
         private Integer servings;
@@ -91,6 +96,7 @@ public class RecipeDTO {
         public Builder name(String name) { this.name = name; return this; }
         public Builder description(String description) { this.description = description; return this; }
         public Builder category(String category) { this.category = category; return this; }
+        public Builder foodType(String foodType) { this.foodType = foodType; return this; }
         public Builder time(Integer time) { this.time = time; return this; }
         public Builder difficulty(String difficulty) { this.difficulty = difficulty; return this; }
         public Builder servings(Integer servings) { this.servings = servings; return this; }
@@ -103,7 +109,7 @@ public class RecipeDTO {
         public Builder nutrition(NutritionDTO nutrition) { this.nutrition = nutrition; return this; }
 
         public RecipeDTO build() {
-            return new RecipeDTO(id, name, description, category, time, difficulty, servings, image,
+            return new RecipeDTO(id, name, description, category, foodType, time, difficulty, servings, image,
                     rating, reviews, notes, ingredients, instructions, nutrition);
         }
     }

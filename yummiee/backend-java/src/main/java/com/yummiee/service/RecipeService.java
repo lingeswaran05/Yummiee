@@ -20,8 +20,8 @@ public class RecipeService {
     private WishlistRepository wishlistRepository;
 
     @Transactional(readOnly = true)
-    public List<RecipeDTO> getRecipes(String search, String category, String difficulty, String sort) {
-        List<Recipe> recipes = recipeRepository.searchRecipes(search, category, difficulty);
+    public List<RecipeDTO> getRecipes(String search, String category, String foodType, String difficulty, String sort) {
+        List<Recipe> recipes = recipeRepository.searchRecipes(search, category, foodType, difficulty);
 
         if ("Quickest".equalsIgnoreCase(sort)) {
             recipes.sort(Comparator.comparing(r -> r.getTimeMinutes() != null ? r.getTimeMinutes() : Integer.MAX_VALUE));
@@ -30,6 +30,11 @@ public class RecipeService {
         }
 
         return recipes.stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<RecipeDTO> getRecipes(String search, String category, String difficulty, String sort) {
+        return getRecipes(search, category, null, difficulty, sort);
     }
 
     @Transactional(readOnly = true)
@@ -135,10 +140,10 @@ public class RecipeService {
     private List<String> getFallbackCategories(String mealPeriod) {
         if (mealPeriod == null) return List.of("Lunch", "Dinner", "Breakfast", "Snacks");
         switch (mealPeriod.toLowerCase()) {
-            case "breakfast": return List.of("Snacks", "Vegetarian", "Lunch");
-            case "lunch": return List.of("Dinner", "Vegetarian", "Snacks");
-            case "snacks": return List.of("Dinner", "Lunch", "Vegetarian");
-            case "dinner": return List.of("Dessert", "Snacks", "Lunch");
+            case "breakfast": return List.of("Snacks", "Lunch", "Dinner");
+            case "lunch": return List.of("Dinner", "Snacks", "Breakfast");
+            case "snacks": return List.of("Dinner", "Lunch", "Breakfast");
+            case "dinner": return List.of("Lunch", "Snacks", "Dessert");
             case "dessert": return List.of("Snacks", "Dinner");
             default: return List.of("Lunch", "Dinner", "Breakfast", "Snacks");
         }
@@ -271,6 +276,7 @@ public class RecipeService {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .category(dto.getCategory() != null ? dto.getCategory() : "Dinner")
+                .foodType(dto.getFoodType() != null && !dto.getFoodType().trim().isEmpty() ? dto.getFoodType() : "vegetarian")
                 .timeMinutes(dto.getTime() != null ? dto.getTime() : 30)
                 .difficulty(dto.getDifficulty() != null ? dto.getDifficulty() : "Easy")
                 .servings(dto.getServings() != null ? dto.getServings() : 2)
@@ -329,6 +335,7 @@ public class RecipeService {
             if (dto.getName() != null) recipe.setName(dto.getName());
             if (dto.getDescription() != null) recipe.setDescription(dto.getDescription());
             if (dto.getCategory() != null) recipe.setCategory(dto.getCategory());
+            if (dto.getFoodType() != null) recipe.setFoodType(dto.getFoodType());
             if (dto.getTime() != null) recipe.setTimeMinutes(dto.getTime());
             if (dto.getDifficulty() != null) recipe.setDifficulty(dto.getDifficulty());
             if (dto.getServings() != null) recipe.setServings(dto.getServings());
@@ -412,6 +419,7 @@ public class RecipeService {
                 .name(recipe.getName())
                 .description(recipe.getDescription())
                 .category(recipe.getCategory())
+                .foodType(recipe.getFoodType() != null ? recipe.getFoodType() : "vegetarian")
                 .time(recipe.getTimeMinutes())
                 .difficulty(recipe.getDifficulty())
                 .servings(recipe.getServings())

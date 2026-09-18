@@ -8,6 +8,7 @@ export const recipeDetails = {
       "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=1400&q=85",
 
     category: "Dinner",
+    foodType: "vegetarian",
     time: 20,
     difficulty: "Easy",
     servings: 2,
@@ -116,6 +117,7 @@ export const recipeDetails = {
       "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=1400&q=85",
 
     category: "Lunch",
+    foodType: "vegetarian",
     time: 30,
     difficulty: "Easy",
     servings: 4,
@@ -212,6 +214,7 @@ export const recipeDetails = {
       "https://images.unsplash.com/photo-1631515242808-497c3fbd3972?auto=format&fit=crop&w=1400&q=85",
 
     category: "Dinner",
+    foodType: "vegetarian",
     time: 40,
     difficulty: "Medium",
     servings: 4,

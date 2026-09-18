@@ -5,6 +5,7 @@ export const recipes = [
     time: "20 min",
     servings: 2,
     category: "Dinner",
+    foodType: "vegetarian",
     image:
       "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=800&q=80",
   },
@@ -14,6 +15,7 @@ export const recipes = [
     time: "30 min",
     servings: 4,
     category: "Lunch",
+    foodType: "vegetarian",
     image:
       "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
   },
@@ -23,9 +25,9 @@ export const recipes = [
     time: "40 min",
     servings: 4,
     category: "Dinner",
-    
-      image:
-  "https://images.unsplash.com/photo-1631515242808-497c3fbd3972?auto=format&fit=crop&w=800&q=80",
+    foodType: "vegetarian",
+    image:
+      "https://images.unsplash.com/photo-1631515242808-497c3fbd3972?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: 4,
@@ -33,6 +35,7 @@ export const recipes = [
     time: "15 min",
     servings: 2,
     category: "Breakfast",
+    foodType: "vegetarian",
     image:
       "https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=800&q=80",
   },
@@ -42,6 +45,7 @@ export const recipes = [
     time: "45 min",
     servings: 4,
     category: "Dinner",
+    foodType: "non-vegetarian",
     image:
       "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80",
   },
@@ -51,6 +55,7 @@ export const recipes = [
     time: "50 min",
     servings: 8,
     category: "Dessert",
+    foodType: "vegetarian",
     image:
       "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80",
   },

@@ -123,6 +123,7 @@ export async function fetchRecipes(params = {}) {
   const query = new URLSearchParams();
   if (params.search) query.append("search", params.search);
   if (params.category && params.category !== "All") query.append("category", params.category);
+  if (params.foodType && params.foodType !== "All") query.append("foodType", params.foodType.toLowerCase());
   if (params.difficulty) query.append("difficulty", params.difficulty);
   if (params.sort) query.append("sort", params.sort);
 
@@ -165,9 +166,18 @@ export async function fetchRecipes(params = {}) {
     return data || [];
   } catch (err) {
     console.warn("Backend fetch failed or timed out, returning cached or curated recipes:", err);
-    if (cached?.data) return cached.data;
-    if (localData && Array.isArray(localData) && localData.length > 0) return localData;
-    return getCuratedFallbackRecipes();
+    let list = cached?.data || (localData && Array.isArray(localData) && localData.length > 0 ? localData : getCuratedFallbackRecipes());
+    if (params.category && params.category !== "All") {
+      list = list.filter((r) => r.category?.toLowerCase() === params.category.toLowerCase());
+    }
+    if (params.foodType && params.foodType !== "All") {
+      list = list.filter((r) => r.foodType?.toLowerCase() === params.foodType.toLowerCase());
+    }
+    if (params.search) {
+      const q = params.search.toLowerCase();
+      list = list.filter((r) => r.name?.toLowerCase().includes(q) || r.description?.toLowerCase().includes(q));
+    }
+    return list;
   }
 }
 

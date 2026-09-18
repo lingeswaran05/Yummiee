@@ -62,6 +62,7 @@ export async function populateRecipeDetails(db, recipeRows) {
     name: r.name,
     description: r.description,
     category: r.category,
+    foodType: r.food_type || "vegetarian",
     time: r.time_minutes,
     difficulty: r.difficulty,
     servings: r.servings,
@@ -73,7 +74,7 @@ export async function populateRecipeDetails(db, recipeRows) {
   }));
 }
 
-export async function getRecipes(db, search, category, difficulty, sort) {
+export async function getRecipes(db, search, category, difficulty, sort, foodType) {
   let query = "SELECT * FROM recipes WHERE 1=1";
   const params = [];
 
@@ -86,6 +87,11 @@ export async function getRecipes(db, search, category, difficulty, sort) {
   if (category && category.trim() && category.toLowerCase() !== "all") {
     query += " AND LOWER(category) = LOWER(?)";
     params.push(category.trim());
+  }
+
+  if (foodType && foodType.trim() && foodType.toLowerCase() !== "all") {
+    query += " AND LOWER(food_type) = LOWER(?)";
+    params.push(foodType.trim());
   }
 
   if (difficulty && difficulty.trim() && difficulty.toLowerCase() !== "all") {
@@ -141,14 +147,14 @@ function getFallbackCategories(mealPeriod) {
   if (!mealPeriod) return ["Lunch", "Dinner", "Breakfast", "Snacks"];
   switch (mealPeriod.toLowerCase()) {
     case "breakfast":
-      return ["Snacks", "Vegetarian", "Lunch"];
+      return ["Snacks", "Lunch", "Dinner"];
     case "lunch":
-      return ["Dinner", "Vegetarian", "Snacks"];
+      return ["Dinner", "Snacks", "Breakfast"];
     case "snacks":
     case "snack":
-      return ["Dinner", "Lunch", "Vegetarian"];
+      return ["Dinner", "Lunch", "Breakfast"];
     case "dinner":
-      return ["Dessert", "Snacks", "Lunch"];
+      return ["Lunch", "Snacks", "Dessert"];
     case "dessert":
       return ["Snacks", "Dinner"];
     default:
@@ -311,14 +317,15 @@ export async function matchRecipesByIngredients(db, request) {
 export async function createRecipe(db, dto, userId) {
   const insertRecipe = await db
     .prepare(
-      `INSERT INTO recipes (user_id, name, description, category, time_minutes, difficulty, servings, image_url, rating, review_count, notes, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, ?, datetime('now'), datetime('now')) RETURNING id`
+      `INSERT INTO recipes (user_id, name, description, category, food_type, time_minutes, difficulty, servings, image_url, rating, review_count, notes, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, 0, ?, datetime('now'), datetime('now')) RETURNING id`
     )
     .bind(
       userId,
       dto.name,
       dto.description || "",
       dto.category || "Dinner",
+      dto.foodType || "vegetarian",
       dto.time || 30,
       dto.difficulty || "Easy",
       dto.servings || 2,
@@ -400,6 +407,10 @@ export async function updateRecipe(db, id, dto, userId) {
   if (dto.category !== undefined) {
     updates.push("category = ?");
     params.push(dto.category);
+  }
+  if (dto.foodType !== undefined) {
+    updates.push("food_type = ?");
+    params.push(dto.foodType);
   }
   if (dto.time !== undefined) {
     updates.push("time_minutes = ?");

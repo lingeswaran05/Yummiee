@@ -90,6 +90,11 @@ d1.exec(migration1);
 const migration2 = fs.readFileSync(path.join(__dirname, "../migrations/0002_seed_recipes.sql"), "utf8");
 d1.exec(migration2);
 
+if (fs.existsSync(path.join(__dirname, "../migrations/0003_add_food_type.sql"))) {
+  const migration3 = fs.readFileSync(path.join(__dirname, "../migrations/0003_add_food_type.sql"), "utf8");
+  d1.exec(migration3);
+}
+
 const testEnv = {
   DB: d1,
   IMAGES: r2,
@@ -191,6 +196,14 @@ async function runTests() {
   const catRes = await testFetch("/api/recipes?category=Breakfast");
   const catData = await catRes.json();
   assert("Category filter returns only Breakfast recipes", catData.every((r) => r.category === "Breakfast"));
+
+  const vegRes = await testFetch("/api/recipes?foodType=vegetarian");
+  const vegData = await vegRes.json();
+  assert("Food type filter returns only Vegetarian recipes", vegData.length > 0 && vegData.every((r) => r.foodType === "vegetarian"));
+
+  const nonVegRes = await testFetch("/api/recipes?foodType=non-vegetarian");
+  const nonVegData = await nonVegRes.json();
+  assert("Food type filter returns only Non-Vegetarian recipes", nonVegData.length > 0 && nonVegData.every((r) => r.foodType === "non-vegetarian"));
 
   const recipe1Res = await testFetch("/api/recipes/1");
   const recipe1 = await recipe1Res.json();

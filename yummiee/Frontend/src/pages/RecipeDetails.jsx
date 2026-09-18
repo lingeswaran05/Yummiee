@@ -160,9 +160,24 @@ function RecipeDetails() {
           </div>
 
           <div className="flex flex-col justify-center">
-            <span className="mb-4 w-fit rounded-full bg-primary/10 px-4 py-1.5 text-sm font-bold text-primary">
-              {recipe.category}
-            </span>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="w-fit rounded-full bg-primary/10 px-4 py-1.5 text-sm font-bold text-primary">
+                {recipe.category}
+              </span>
+              {recipe.foodType && (
+                <span
+                  className={`w-fit rounded-full px-4 py-1.5 text-sm font-bold ${
+                    recipe.foodType.toLowerCase() === "vegetarian"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-orange-50 text-orange-700 border border-orange-200"
+                  }`}
+                >
+                  {recipe.foodType.toLowerCase() === "vegetarian"
+                    ? "Vegetarian"
+                    : "Non-Vegetarian"}
+                </span>
+              )}
+            </div>
 
             <h1 className="text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
               {recipe.name}

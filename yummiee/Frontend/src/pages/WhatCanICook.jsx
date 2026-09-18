@@ -25,7 +25,6 @@ const CATEGORIES = [
   "Dinner",
   "Dessert",
   "Snacks",
-  "Vegetarian",
 ];
 
 function WhatCanICook() {

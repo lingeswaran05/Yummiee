@@ -7,44 +7,10 @@ import RecipeCardSkeleton from "../components/RecipeCardSkeleton";
 import SurpriseMeModal from "../components/SurpriseMeModal";
 import { fetchRecipes, fetchRecipeSuggestion } from "../services/api";
 
-function getTimeBasedMealPeriod() {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 11) {
-    return {
-      category: "Breakfast",
-      title: "Good Morning",
-      subtitle: "What's good for breakfast right now",
-    };
-  } else if (hour >= 11 && hour < 16) {
-    return {
-      category: "Lunch",
-      title: "Good Afternoon",
-      subtitle: "What's good for lunch right now",
-    };
-  } else if (hour >= 16 && hour < 18) {
-    return {
-      category: "Snacks",
-      title: "Late Afternoon Pick-Me-Up",
-      subtitle: "What's good for snacks right now",
-    };
-  } else if (hour >= 18 && hour < 22) {
-    return {
-      category: "Dinner",
-      title: "Good Evening",
-      subtitle: "What's good for dinner right now",
-    };
-  } else {
-    return {
-      category: "Dessert",
-      title: "Late Night Treat",
-      subtitle: "What's good for dessert right now",
-    };
-  }
-}
-
 function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedFoodType, setSelectedFoodType] = useState("All");
   const [sortOption, setSortOption] = useState("Recently Added");
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,10 +27,13 @@ function Dashboard() {
     "Dinner",
     "Dessert",
     "Snacks",
-    "Vegetarian",
   ];
 
-  const mealPeriod = getTimeBasedMealPeriod();
+  const foodTypes = [
+    "All",
+    "Vegetarian",
+    "Non-Vegetarian",
+  ];
 
   useEffect(() => {
     let isMounted = true;
@@ -74,6 +43,7 @@ function Dashboard() {
         const data = await fetchRecipes({
           search: searchTerm,
           category: selectedCategory,
+          foodType: selectedFoodType,
           sort: sortOption,
         });
         if (isMounted) {
@@ -94,7 +64,7 @@ function Dashboard() {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [searchTerm, selectedCategory, sortOption]);
+  }, [searchTerm, selectedCategory, selectedFoodType, sortOption]);
 
   const loadSurpriseSuggestion = async (excludeId = null) => {
     setLoadingSuggestion(true);
@@ -129,28 +99,27 @@ function Dashboard() {
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedCategory("All");
+    setSelectedFoodType("All");
     setSortOption("Recently Added");
   };
 
-  // Find a single deterministic recommendation for the current time
-  const recommendedRecipe = (() => {
-    if (!recipes || recipes.length === 0) return null;
-    const match = recipes.find(
-      (r) => r.category && r.category.trim().toLowerCase() === mealPeriod.category.toLowerCase()
-    );
-    // Fall back gracefully to the first available recipe if no meal category matches
-    return match || recipes[0] || null;
-  })();
-
-  // Filter out the recommended recipe from All Recipes when in default view to prevent duplication
-  const isDefaultView = !searchTerm && selectedCategory === "All";
-  const displayedAllRecipes = isDefaultView && recommendedRecipe
-    ? recipes.filter((r) => r.id !== recommendedRecipe.id)
-    : recipes;
+  const getSectionTitle = () => {
+    if (searchTerm) return "Search Results";
+    if (selectedCategory !== "All" && selectedFoodType !== "All") {
+      return `${selectedCategory} (${selectedFoodType})`;
+    }
+    if (selectedCategory !== "All") {
+      return `${selectedCategory} Recipes`;
+    }
+    if (selectedFoodType !== "All") {
+      return `${selectedFoodType} Recipes`;
+    }
+    return "All Recipes";
+  };
 
   return (
     <MainLayout>
-      <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-12 px-5 py-8 md:px-10 md:py-12">
+      <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-10 px-5 py-8 md:px-10 md:py-12">
         {/* ================= HERO ================= */}
         <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 text-center">
           <div>
@@ -218,44 +187,7 @@ function Dashboard() {
           )}
         </section>
 
-        {/* ================= TIME-BASED RECOMMENDATION ================= */}
-        {!searchTerm && selectedCategory === "All" && (
-          <section className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-primary" />
-                  <h2 className="text-xl font-bold text-text-primary">
-                    {mealPeriod.title} • What's Good for {mealPeriod.category}?
-                  </h2>
-                </div>
-                <p className="mt-0.5 text-sm text-text-secondary">
-                  {mealPeriod.subtitle}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() =>
-                  document.getElementById("all-recipes")?.scrollIntoView({ behavior: "smooth" })
-                }
-                className="text-sm font-semibold text-primary transition hover:text-primary-dark"
-              >
-                See All
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {loading ? (
-                <RecipeCardSkeleton />
-              ) : recommendedRecipe ? (
-                <RecipeCard recipe={recommendedRecipe} />
-              ) : null}
-            </div>
-          </section>
-        )}
-
-        {/* ================= CATEGORIES ================= */}
+        {/* ================= CATEGORIES & FOOD TYPE ================= */}
         <section id="categories" className="flex flex-col gap-5">
           <div>
             <h2 className="text-xl font-semibold">Browse Categories</h2>
@@ -280,6 +212,29 @@ function Dashboard() {
               </button>
             ))}
           </div>
+
+          {/* Food Type Filter */}
+          <div className="flex flex-col gap-2 pt-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">
+              Food Type
+            </span>
+            <div className="flex flex-wrap gap-2.5">
+              {foodTypes.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setSelectedFoodType(type)}
+                  className={`rounded-full px-5 py-1.5 text-sm font-semibold transition ${
+                    selectedFoodType === type
+                      ? "bg-primary text-white"
+                      : "border border-[#e4e2e1] bg-white text-text-secondary hover:bg-[#f6f3f2]"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* ================= ALL RECIPES ================= */}
@@ -287,11 +242,7 @@ function Dashboard() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-xl font-semibold">
-                {searchTerm
-                  ? "Search Results"
-                  : selectedCategory === "All"
-                  ? "All Recipes"
-                  : `${selectedCategory} Recipes`}
+                {getSectionTitle()}
               </h2>
 
               <p className="mt-1 text-sm text-text-secondary">
@@ -315,9 +266,9 @@ function Dashboard() {
                 <RecipeCardSkeleton key={index} />
               ))}
             </div>
-          ) : displayedAllRecipes.length > 0 ? (
+          ) : recipes.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {displayedAllRecipes.map((recipe) => (
+              {recipes.map((recipe) => (
                 <RecipeCard key={recipe.id} recipe={recipe} />
               ))}
             </div>

@@ -22,6 +22,7 @@ function AddRecipe() {
     name: "",
     description: "",
     category: "Dinner",
+    foodType: "vegetarian",
     time: 30,
     difficulty: "Easy",
     servings: 2,
@@ -158,6 +159,7 @@ function AddRecipe() {
         name: recipe.name.trim(),
         description: recipe.description.trim(),
         category: recipe.category,
+        foodType: recipe.foodType || "vegetarian",
         time: totalMinutes,
         difficulty: recipe.difficulty,
         servings: Number(recipe.servings) || 2,
@@ -256,8 +258,37 @@ function AddRecipe() {
                   <option>Dinner</option>
                   <option>Dessert</option>
                   <option>Snacks</option>
-                  <option>Vegetarian</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold">Food Type</label>
+                <div className="flex h-12 w-full items-center gap-6 rounded-xl border border-border bg-white px-4 text-base sm:h-14">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-text-primary">
+                    <input
+                      type="radio"
+                      name="foodType"
+                      value="vegetarian"
+                      checked={recipe.foodType === "vegetarian"}
+                      onChange={(e) => updateRecipe("foodType", e.target.value)}
+                      className="h-4 w-4 accent-primary"
+                      required
+                    />
+                    <span>Vegetarian</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-text-primary">
+                    <input
+                      type="radio"
+                      name="foodType"
+                      value="non-vegetarian"
+                      checked={recipe.foodType === "non-vegetarian"}
+                      onChange={(e) => updateRecipe("foodType", e.target.value)}
+                      className="h-4 w-4 accent-primary"
+                      required
+                    />
+                    <span>Non-Vegetarian</span>
+                  </label>
+                </div>
               </div>
 
               <div>
@@ -349,22 +380,11 @@ function AddRecipe() {
 
           {/* INGREDIENTS */}
           <section className="rounded-2xl border border-[#e4e2e1] bg-white p-5 shadow-sm sm:p-8">
-            <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
-              <div>
-                <h2 className="text-lg font-bold sm:text-xl">Ingredients</h2>
-                <p className="mt-1 text-xs text-text-secondary sm:text-sm">
-                  Add every ingredient needed.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={addIngredient}
-                className="flex shrink-0 items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-2 text-xs font-bold text-primary transition hover:bg-primary/15 sm:px-4 sm:py-2.5 sm:text-sm"
-              >
-                <Plus className="h-4 w-4" />
-                Add
-              </button>
+            <div className="mb-5 sm:mb-6">
+              <h2 className="text-lg font-bold sm:text-xl">Ingredients</h2>
+              <p className="mt-1 text-xs text-text-secondary sm:text-sm">
+                Add every ingredient needed.
+              </p>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -429,27 +449,25 @@ function AddRecipe() {
                   </button>
                 </div>
               ))}
+
+              <button
+                type="button"
+                onClick={addIngredient}
+                className="mt-2 flex w-fit items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-primary/15"
+              >
+                <Plus className="h-4 w-4" />
+                Add Ingredient
+              </button>
             </div>
           </section>
 
           {/* INSTRUCTIONS */}
           <section className="rounded-2xl border border-[#e4e2e1] bg-white p-5 shadow-sm sm:p-8">
-            <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
-              <div>
-                <h2 className="text-lg font-bold sm:text-xl">Cooking Instructions</h2>
-                <p className="mt-1 text-xs text-text-secondary sm:text-sm">
-                  Add step-by-step instructions.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={addInstruction}
-                className="flex shrink-0 items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-2 text-xs font-bold text-primary transition hover:bg-primary/15 sm:px-4 sm:py-2.5 sm:text-sm"
-              >
-                <Plus className="h-4 w-4" />
-                Add Step
-              </button>
+            <div className="mb-5 sm:mb-6">
+              <h2 className="text-lg font-bold sm:text-xl">Cooking Instructions</h2>
+              <p className="mt-1 text-xs text-text-secondary sm:text-sm">
+                Add step-by-step instructions.
+              </p>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -479,6 +497,15 @@ function AddRecipe() {
                   </button>
                 </div>
               ))}
+
+              <button
+                type="button"
+                onClick={addInstruction}
+                className="mt-2 flex w-fit items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2.5 text-sm font-bold text-primary transition hover:bg-primary/15"
+              >
+                <Plus className="h-4 w-4" />
+                Add Step
+              </button>
             </div>
           </section>
 

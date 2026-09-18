@@ -25,9 +25,10 @@ public class RecipeController {
     public ResponseEntity<List<RecipeDTO>> getRecipes(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String category,
+            @RequestParam(required = false) String foodType,
             @RequestParam(required = false) String difficulty,
             @RequestParam(required = false) String sort) {
-        List<RecipeDTO> recipes = recipeService.getRecipes(search, category, difficulty, sort);
+        List<RecipeDTO> recipes = recipeService.getRecipes(search, category, foodType, difficulty, sort);
         return ResponseEntity.ok(recipes);
     }
 
