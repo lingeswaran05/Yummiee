@@ -39,12 +39,7 @@ public class DataInitializer implements CommandLineRunner {
                 .toList();
         if (!unclassified.isEmpty()) {
             for (Recipe r : unclassified) {
-                String n = r.getName() != null ? r.getName().toLowerCase() : "";
-                if (n.contains("chicken") || n.contains("meat") || n.contains("fish") || n.contains("prawn") || n.contains("mutton") || n.contains("beef") || n.contains("pork")) {
-                    r.setFoodType("non-vegetarian");
-                } else {
-                    r.setFoodType("vegetarian");
-                }
+                r.setFoodType("vegetarian");
             }
             recipeRepository.saveAll(unclassified);
         }
@@ -58,7 +53,7 @@ public class DataInitializer implements CommandLineRunner {
                     .name("Creamy Tuscan Garlic Chicken")
                     .description("Tender chicken breasts in a rich, creamy sun-dried tomato and spinach sauce. Perfect for a cozy weeknight dinner.")
                     .category("Dinner")
-                    .foodType("non-vegetarian")
+                    .foodType("vegetarian")
                     .timeMinutes(30)
                     .difficulty("Easy")
                     .servings(4)

@@ -45,7 +45,7 @@ export const recipes = [
     time: "45 min",
     servings: 4,
     category: "Dinner",
-    foodType: "non-vegetarian",
+    foodType: "vegetarian",
     image:
       "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80",
   },
