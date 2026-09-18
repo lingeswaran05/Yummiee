@@ -84,15 +84,13 @@ const d1 = createD1Database(dbSync);
 const r2 = createR2Bucket();
 
 // Apply D1 migrations in sequence
-const migration1 = fs.readFileSync(path.join(__dirname, "../migrations/0001_initial_schema.sql"), "utf8");
-d1.exec(migration1);
-
-const migration2 = fs.readFileSync(path.join(__dirname, "../migrations/0002_seed_recipes.sql"), "utf8");
-d1.exec(migration2);
-
-if (fs.existsSync(path.join(__dirname, "../migrations/0003_add_food_type.sql"))) {
-  const migration3 = fs.readFileSync(path.join(__dirname, "../migrations/0003_add_food_type.sql"), "utf8");
-  d1.exec(migration3);
+const migrationFiles = fs
+  .readdirSync(path.join(__dirname, "../migrations"))
+  .filter((f) => f.endsWith(".sql"))
+  .sort();
+for (const file of migrationFiles) {
+  const sql = fs.readFileSync(path.join(__dirname, "../migrations", file), "utf8");
+  d1.exec(sql);
 }
 
 const testEnv = {
@@ -197,13 +195,15 @@ async function runTests() {
   const catData = await catRes.json();
   assert("Category filter returns only Breakfast recipes", catData.every((r) => r.category === "Breakfast"));
 
+  assert("All seed catalog recipes reset to vegetarian after migration 0004", allRecipes.every((r) => r.foodType === "vegetarian"));
+
   const vegRes = await testFetch("/api/recipes?foodType=vegetarian");
   const vegData = await vegRes.json();
-  assert("Food type filter returns only Vegetarian recipes", vegData.length > 0 && vegData.every((r) => r.foodType === "vegetarian"));
+  assert("Food type filter returns only Vegetarian recipes", vegData.length === allRecipes.length && vegData.every((r) => r.foodType === "vegetarian"));
 
   const nonVegRes = await testFetch("/api/recipes?foodType=non-vegetarian");
   const nonVegData = await nonVegRes.json();
-  assert("Food type filter returns only Non-Vegetarian recipes", nonVegData.length > 0 && nonVegData.every((r) => r.foodType === "non-vegetarian"));
+  assert("Food type filter returns empty for non-vegetarian before manual additions", nonVegData.length === 0);
 
   const recipe1Res = await testFetch("/api/recipes/1");
   const recipe1 = await recipe1Res.json();
@@ -317,6 +317,7 @@ async function runTests() {
       name: "Alice Private Chicken Curry",
       description: "Alice secret family recipe",
       category: "Dinner",
+      foodType: "non-vegetarian",
       time: 35,
       difficulty: "Medium",
       servings: 4,
@@ -326,8 +327,34 @@ async function runTests() {
     }),
   });
   const recipeA = await createRecipeARes.json();
-  assert("User A creates Recipe A (201 Created)", createRecipeARes.status === 201);
+  assert("User A creates Recipe A as Non-Vegetarian (201 Created)", createRecipeARes.status === 201);
+  assert("Recipe A foodType is non-vegetarian", recipeA.foodType === "non-vegetarian");
   const recipeAId = recipeA.id;
+
+  // Verify Non-Vegetarian filter includes Recipe A
+  const nonVegAfterCreate = await (await testFetch("/api/recipes?foodType=non-vegetarian")).json();
+  assert("Non-Vegetarian filter returns Recipe A", nonVegAfterCreate.some((r) => r.id === recipeAId));
+
+  // Verify Vegetarian filter excludes Recipe A
+  const vegAfterCreate = await (await testFetch("/api/recipes?foodType=vegetarian")).json();
+  assert("Vegetarian filter excludes Recipe A", !vegAfterCreate.some((r) => r.id === recipeAId));
+
+  // User A edits Recipe A to Vegetarian
+  const editRecipeARes = await testFetch(`/api/recipes/${recipeAId}`, {
+    method: "PUT",
+    headers: authHeaderA,
+    body: JSON.stringify({ foodType: "vegetarian" }),
+  });
+  const editedRecipeA = await editRecipeARes.json();
+  assert("User A edits Recipe A to Vegetarian (200 OK)", editRecipeARes.status === 200);
+  assert("Edited Recipe A foodType is vegetarian", editedRecipeA.foodType === "vegetarian");
+
+  // User A edits Recipe A back to Non-Vegetarian
+  await testFetch(`/api/recipes/${recipeAId}`, {
+    method: "PUT",
+    headers: authHeaderA,
+    body: JSON.stringify({ foodType: "non-vegetarian" }),
+  });
 
   // User A adds Recipe 1 to Wishlist
   const addWishlistARes = await testFetch("/api/wishlist/1", {

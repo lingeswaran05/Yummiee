@@ -279,28 +279,26 @@ export async function matchRecipes(matchRequest) {
 export async function createRecipe(recipeData) {
   // Clear caches so new recipe appears immediately everywhere
   cache.clear();
+  try {
+    localStorage.removeItem("yummiee_cached_recipes");
+  } catch {
+    // ignore
+  }
   const created = await request("/recipes", {
     method: "POST",
     body: JSON.stringify(recipeData),
   }, 12000);
-
-  // Update local storage cache optimistically
-  try {
-    const saved = localStorage.getItem("yummiee_cached_recipes");
-    const list = saved ? JSON.parse(saved) : [];
-    if (created) {
-      list.unshift(created);
-      localStorage.setItem("yummiee_cached_recipes", JSON.stringify(list));
-    }
-  } catch {
-    // ignore
-  }
 
   return created;
 }
 
 export async function updateRecipe(id, recipeData) {
   cache.clear();
+  try {
+    localStorage.removeItem("yummiee_cached_recipes");
+  } catch {
+    // ignore
+  }
   return request(`/recipes/${id}`, {
     method: "PUT",
     body: JSON.stringify(recipeData),
