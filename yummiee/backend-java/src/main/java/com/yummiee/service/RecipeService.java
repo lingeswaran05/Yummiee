@@ -50,7 +50,17 @@ public class RecipeService {
 
     @Transactional(readOnly = true)
     public Optional<RecipeSuggestionDTO> getRecipeSuggestion(String clientMealPeriod, Long excludeId, Integer clientHour) {
+        return getRecipeSuggestion(clientMealPeriod, excludeId, clientHour, null);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<RecipeSuggestionDTO> getRecipeSuggestion(String clientMealPeriod, Long excludeId, Integer clientHour, String foodType) {
         List<Recipe> allRecipes = recipeRepository.findAll();
+        if (foodType != null && !foodType.trim().isEmpty() && !foodType.equalsIgnoreCase("All")) {
+            allRecipes = allRecipes.stream()
+                    .filter(r -> r.getFoodType() != null && r.getFoodType().equalsIgnoreCase(foodType.trim()))
+                    .collect(Collectors.toList());
+        }
         if (allRecipes.isEmpty()) {
             return Optional.empty();
         }

@@ -10,8 +10,7 @@ import { fetchRecipes, fetchRecipeSuggestion } from "../services/api";
 function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedFoodType, setSelectedFoodType] = useState("All");
-  const [sortOption, setSortOption] = useState("Recently Added");
+  const [filterOption, setFilterOption] = useState("Recently Added");
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,22 +28,38 @@ function Dashboard() {
     "Snacks",
   ];
 
-  const foodTypes = [
-    "All",
-    "Vegetarian",
-    "Non-Vegetarian",
-  ];
+  const isFoodTypeAllowed = selectedCategory !== "Dessert" && selectedCategory !== "Snacks";
+
+  // Auto-reset invalid filter option when switching to Dessert or Snacks
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+    if ((category === "Dessert" || category === "Snacks") && (filterOption === "Vegetarian" || filterOption === "Non-Vegetarian")) {
+      setFilterOption("Recently Added");
+    }
+  };
+
+  useEffect(() => {
+    if (!isFoodTypeAllowed && (filterOption === "Vegetarian" || filterOption === "Non-Vegetarian")) {
+      setFilterOption("Recently Added");
+    }
+  }, [selectedCategory, filterOption, isFoodTypeAllowed]);
 
   useEffect(() => {
     let isMounted = true;
     const loadRecipes = async () => {
       setLoading(true);
       try {
+        const isFoodTypeActive = selectedCategory !== "Dessert" && selectedCategory !== "Snacks";
+        const currentFoodType = isFoodTypeActive && (filterOption === "Vegetarian" || filterOption === "Non-Vegetarian")
+          ? filterOption
+          : "All";
+        const currentSort = filterOption === "Quickest" ? "quickest" : "recently-added";
+
         const data = await fetchRecipes({
           search: searchTerm,
           category: selectedCategory,
-          foodType: selectedFoodType,
-          sort: sortOption,
+          foodType: currentFoodType,
+          sort: currentSort,
         });
         if (isMounted) {
           setRecipes(data || []);
@@ -64,15 +79,21 @@ function Dashboard() {
       isMounted = false;
       clearTimeout(timer);
     };
-  }, [searchTerm, selectedCategory, selectedFoodType, sortOption]);
+  }, [searchTerm, selectedCategory, filterOption]);
 
   const loadSurpriseSuggestion = async (excludeId = null) => {
     setLoadingSuggestion(true);
     try {
       const currentHour = new Date().getHours();
+      const isFoodTypeActive = selectedCategory !== "Dessert" && selectedCategory !== "Snacks";
+      const currentFoodType = isFoodTypeActive && (filterOption === "Vegetarian" || filterOption === "Non-Vegetarian")
+        ? filterOption
+        : "All";
+
       const data = await fetchRecipeSuggestion({
         excludeId,
         hour: currentHour,
+        foodType: currentFoodType,
       });
       setSuggestionData(data);
     } catch (err) {
@@ -99,21 +120,27 @@ function Dashboard() {
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedCategory("All");
-    setSelectedFoodType("All");
-    setSortOption("Recently Added");
+    setFilterOption("Recently Added");
   };
 
   const getSectionTitle = () => {
     if (searchTerm) return "Search Results";
-    if (selectedCategory !== "All" && selectedFoodType !== "All") {
-      return `${selectedCategory} (${selectedFoodType})`;
-    }
+    const isFoodTypeActive = selectedCategory !== "Dessert" && selectedCategory !== "Snacks";
+    const currentFoodType = isFoodTypeActive && (filterOption === "Vegetarian" || filterOption === "Non-Vegetarian")
+      ? filterOption
+      : null;
+
     if (selectedCategory !== "All") {
+      if (currentFoodType) {
+        return `${selectedCategory} (${currentFoodType})`;
+      }
       return `${selectedCategory} Recipes`;
     }
-    if (selectedFoodType !== "All") {
-      return `${selectedFoodType} Recipes`;
+
+    if (currentFoodType) {
+      return `${currentFoodType} Recipes`;
     }
+
     return "All Recipes";
   };
 
@@ -187,7 +214,7 @@ function Dashboard() {
           )}
         </section>
 
-        {/* ================= CATEGORIES & FOOD TYPE ================= */}
+        {/* ================= CATEGORIES ================= */}
         <section id="categories" className="flex flex-col gap-5">
           <div>
             <h2 className="text-xl font-semibold">Browse Categories</h2>
@@ -201,7 +228,7 @@ function Dashboard() {
               <button
                 key={category}
                 type="button"
-                onClick={() => setSelectedCategory(category)}
+                onClick={() => handleCategoryChange(category)}
                 className={`rounded-full px-6 py-2 text-sm font-semibold transition ${
                   selectedCategory === category
                     ? "bg-primary text-white"
@@ -211,29 +238,6 @@ function Dashboard() {
                 {category}
               </button>
             ))}
-          </div>
-
-          {/* Food Type Filter */}
-          <div className="flex flex-col gap-2 pt-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">
-              Food Type
-            </span>
-            <div className="flex flex-wrap gap-2.5">
-              {foodTypes.map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setSelectedFoodType(type)}
-                  className={`rounded-full px-5 py-1.5 text-sm font-semibold transition ${
-                    selectedFoodType === type
-                      ? "bg-primary text-white"
-                      : "border border-[#e4e2e1] bg-white text-text-secondary hover:bg-[#f6f3f2]"
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
           </div>
         </section>
 
@@ -251,12 +255,14 @@ function Dashboard() {
             </div>
 
             <select
-              value={sortOption}
-              onChange={(event) => setSortOption(event.target.value)}
-              className="w-fit rounded-lg border border-[#e4e2e1] bg-white px-3 py-2 text-sm font-semibold text-text-secondary outline-none focus:border-primary"
+              value={filterOption}
+              onChange={(event) => setFilterOption(event.target.value)}
+              className="w-fit rounded-lg border border-[#e4e2e1] bg-white px-3 py-2 text-sm font-semibold text-text-secondary outline-none focus:border-primary cursor-pointer"
             >
-              <option>Recently Added</option>
-              <option>Quickest</option>
+              <option value="Recently Added">Recently Added</option>
+              <option value="Quickest">Quickest</option>
+              {isFoodTypeAllowed && <option value="Vegetarian">Vegetarian</option>}
+              {isFoodTypeAllowed && <option value="Non-Vegetarian">Non-Vegetarian</option>}
             </select>
           </div>
 

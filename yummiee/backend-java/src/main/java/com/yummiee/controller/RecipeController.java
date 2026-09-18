@@ -43,8 +43,9 @@ public class RecipeController {
     public ResponseEntity<RecipeSuggestionDTO> getRecipeSuggestion(
             @RequestParam(required = false) String mealPeriod,
             @RequestParam(required = false) Long excludeId,
-            @RequestParam(required = false) Integer hour) {
-        return recipeService.getRecipeSuggestion(mealPeriod, excludeId, hour)
+            @RequestParam(required = false) Integer hour,
+            @RequestParam(required = false) String foodType) {
+        return recipeService.getRecipeSuggestion(mealPeriod, excludeId, hour, foodType)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

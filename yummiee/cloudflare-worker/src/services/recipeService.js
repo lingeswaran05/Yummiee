@@ -162,12 +162,20 @@ function getFallbackCategories(mealPeriod) {
   }
 }
 
-export async function getRecipeSuggestion(db, clientMealPeriod, excludeId, clientHour) {
+export async function getRecipeSuggestion(db, clientMealPeriod, excludeId, clientHour, clientFoodType) {
   const allRecipesRes = await db.prepare("SELECT * FROM recipes").all();
   const allRows = allRecipesRes.results || [];
   if (allRows.length === 0) return null;
 
-  const allRecipes = await populateRecipeDetails(db, allRows);
+  let allRecipes = await populateRecipeDetails(db, allRows);
+  if (clientFoodType && clientFoodType.trim() && clientFoodType.toLowerCase() !== "all") {
+    const filtered = allRecipes.filter(
+      (r) => r.foodType && r.foodType.toLowerCase() === clientFoodType.trim().toLowerCase()
+    );
+    if (filtered.length > 0) {
+      allRecipes = filtered;
+    }
+  }
 
   let hour = clientHour;
   if (hour === undefined || hour === null) {

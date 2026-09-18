@@ -222,13 +222,18 @@ export async function fetchRecipeSuggestion(params = {}) {
   if (params.mealPeriod) query.append("mealPeriod", params.mealPeriod);
   if (params.excludeId) query.append("excludeId", params.excludeId);
   if (params.hour !== undefined && params.hour !== null) query.append("hour", params.hour);
+  if (params.foodType && params.foodType !== "All") query.append("foodType", params.foodType.toLowerCase());
 
   const queryString = query.toString() ? `?${query.toString()}` : "";
   try {
     return await request(`/recipes/suggestion${queryString}`, {}, 5000);
   } catch (err) {
     console.warn("fetchRecipeSuggestion fallback to random recipe:", err);
-    const list = getCuratedFallbackRecipes();
+    let list = getCuratedFallbackRecipes();
+    if (params.foodType && params.foodType !== "All") {
+      const ftList = list.filter((r) => r.foodType && r.foodType.toLowerCase() === params.foodType.toLowerCase());
+      if (ftList.length > 0) list = ftList;
+    }
     const filtered = params.excludeId ? list.filter((r) => r.id !== params.excludeId) : list;
     const random = filtered[Math.floor(Math.random() * filtered.length)] || list[0];
     return {

@@ -30,12 +30,14 @@ recipesRouter.get("/suggestion", async (c) => {
   const excludeId = excludeIdStr ? parseInt(excludeIdStr, 10) : null;
   const hourStr = c.req.query("hour");
   const hour = hourStr !== undefined && hourStr !== null ? parseInt(hourStr, 10) : null;
+  const foodType = c.req.query("foodType");
 
   const suggestion = await recipeService.getRecipeSuggestion(
     c.env.DB,
     mealPeriod,
     excludeId && excludeId > 0 ? excludeId : null,
-    isNaN(hour) ? null : hour
+    isNaN(hour) ? null : hour,
+    foodType
   );
 
   if (!suggestion) {
